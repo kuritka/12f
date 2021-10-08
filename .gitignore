@@ -9,6 +9,7 @@
 !.licignore
 !.golangci
 !*.yaml
+!*.yml
 !Makefile
 !*.go
 !go.mod
