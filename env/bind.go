@@ -22,7 +22,6 @@ import (
 	"os"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"unsafe"
 )
@@ -52,23 +51,9 @@ type env struct {
 
 type meta map[string]field
 
-const (
-	tagEnv = "env"
-)
+const ()
 
 // Bind binds environment variables into structure
-// ✅ repeated values
-// ✅ Bind two fields by one envvar
-// ✅ nested structres
-// ✅ anonymous structures
-// ✅ binding to private fields
-// ✅ default values
-// ✅ required values
-// ✅ env prefixes
-// ✅ slices
-// ❎ maps
-// ❎ datetimes
-// ❌ keys 🔑
 func Bind(s interface{}) (err error) {
 	var meta meta
 	if s == nil {
@@ -96,47 +81,27 @@ func bind(m meta) (err error) {
 		f := reflect.NewAt(v.fieldValue.Type(), unsafe.Pointer(v.fieldValue.UnsafeAddr())).Elem()
 		switch v.fieldValue.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			var i, intdef int
-			if v.env.def.exists {
-				intdef, err = strconv.Atoi(v.env.def.value)
-				if err != nil {
-					err = fmt.Errorf("can't convert default value %s of '%s' to int", v.env.name, v.env.def.value)
-					return
-				}
-			}
-			i, err = GetEnvAsIntOrFallback(v.env.name, intdef)
+			var i int
+			i, err = integer(v.env)
 			if err != nil {
-				err = fmt.Errorf("can't read %s and parse value %s to int", v.env.name, v.env.def.value)
 				return
 			}
 			f.SetInt(int64(i))
 			continue
 
 		case reflect.Bool:
-			var b, booldef bool
-			if v.env.def.exists {
-				booldef, err = strconv.ParseBool(v.env.def.value)
-				if err != nil {
-					err = fmt.Errorf("can't convert default value %s of '%s' to bool", v.env.name, v.env.def.value)
-					return
-				}
+			var b bool
+			b, err = boolean(v.env)
+			if err != nil {
+				return
 			}
-			b = GetEnvAsBoolOrFallback(v.env.name, booldef)
 			f.SetBool(b)
 			continue
 
 		case reflect.Float32, reflect.Float64:
-			var fl, floatdef float64
-			if v.env.def.exists {
-				floatdef, err = strconv.ParseFloat(v.env.def.value, 64)
-				if err != nil {
-					err = fmt.Errorf("can't convert default value %s of '%s' to float64", v.env.name, v.env.def.value)
-					return
-				}
-			}
-			fl, err = GetEnvAsFloat64OrFallback(v.env.name, floatdef)
+			var fl float64
+			fl, err = float(v.env)
 			if err != nil {
-				err = fmt.Errorf("can't read %s and parse value %s to float64", v.env.name, v.env.def.value)
 				return
 			}
 			f.SetFloat(fl)
@@ -149,77 +114,39 @@ func bind(m meta) (err error) {
 			continue
 
 		case reflect.Slice:
-			var strvalues []string
-			if v.env.def.exists {
-				envdef := strings.TrimSuffix(strings.TrimPrefix(v.env.def.value, " "), " ")
-				envdef = strings.TrimSuffix(strings.TrimPrefix(envdef, "["), "]")
-				strvalues = strings.Split(envdef, ",")
-				if strvalues[0] == "" {
-					strvalues = []string{}
-				}
-			}
+
 			switch f.Interface().(type) {
 			case []string:
-				var strslice []string
-				strslice = GetEnvAsArrayOfStringsOrFallback(v.env.name, strvalues)
-				f.Set(reflect.ValueOf(strslice))
+				var ss []string
+				ss = GetEnvAsArrayOfStringsOrFallback(v.env.name, v.env.def.asStringSlice())
+				f.Set(reflect.ValueOf(ss))
 				continue
 
 			case []int, []int8, []int16, []int32, []int64:
-				var intslice []int
-				sintdef := []int{}
-				for _, s := range strvalues {
-					var i int
-					i, err = strconv.Atoi(strings.Trim(s, " "))
-					if err != nil {
-						err = fmt.Errorf("can't convert default %s to slice of int", strvalues)
-						return
-					}
-					sintdef = append(sintdef, i)
-				}
-				intslice, err = GetEnvAsArrayOfIntsOrFallback(v.env.name, sintdef)
+				var is []int
+				is, err = integerSlice(v.env)
 				if err != nil {
-					err = fmt.Errorf("can't parse %s as slice of int %s", v.env.name, v.env.value)
+					return
 				}
-				f.Set(reflect.ValueOf(intslice))
+				f.Set(reflect.ValueOf(is))
 				continue
 
 			case []float32, []float64:
-				var floatslice []float64
-				sfloatdef := []float64{}
-				for _, s := range strvalues {
-					var fl float64
-					fl, err = strconv.ParseFloat(strings.Trim(s, " "), 64)
-					if err != nil {
-						err = fmt.Errorf("can't convert default %s to slice of float64", strvalues)
-						return
-					}
-					sfloatdef = append(sfloatdef, fl)
-				}
-				floatslice, err = GetEnvAsArrayOfFloat64OrFallback(v.env.name, sfloatdef)
+				var fs []float64
+				fs, err = floatSlice(v.env)
 				if err != nil {
-					err = fmt.Errorf("can't parse %s as slice of float64 %s", v.env.name, v.env.value)
+					return
 				}
-				f.Set(reflect.ValueOf(floatslice))
+				f.Set(reflect.ValueOf(fs))
 				continue
 
 			case []bool:
-				var boolslice []bool
-				sbooldef := []bool{}
-				for _, s := range strvalues {
-					var b bool
-					b, err = strconv.ParseBool(strings.Trim(s, " "))
-					if err != nil {
-						err = fmt.Errorf("can't convert default %s to slice of bool", strvalues)
-						return
-					}
-					sbooldef = append(sbooldef, b)
-				}
-				boolslice, err = GetEnvAsArrayOfBoolOrFallback(v.env.name, sbooldef)
+				var bs []bool
+				bs, err = boolSlice(v.env)
 				if err != nil {
-					err = fmt.Errorf("can't parse %s as array of ints %s", v.env.name, v.env.value)
+					return
 				}
-				f.Set(reflect.ValueOf(boolslice))
+				f.Set(reflect.ValueOf(bs))
 				continue
 
 			default:
@@ -235,6 +162,8 @@ func bind(m meta) (err error) {
 
 // recoursive function builds meta structure
 func roll(value reflect.Value, n, prefix string) (m meta, err error) {
+	const tagEnv = "env"
+
 	m = meta{}
 	for i := 0; i < value.NumField(); i++ {
 		var e env
@@ -335,5 +264,18 @@ func getTagProperty(tag, t string) (r strTag, err error) {
 	remove := removeRegex.FindString(strings.ToLower(tag))
 	r.value = strings.ReplaceAll(match, remove, "")
 	r.exists = true
+	return
+}
+
+func (t strTag) asStringSlice() (s []string) {
+	if !t.exists {
+		return
+	}
+	envdef := strings.TrimSuffix(strings.TrimPrefix(t.value, " "), " ")
+	envdef = strings.TrimSuffix(strings.TrimPrefix(envdef, "["), "]")
+	s = strings.Split(envdef, ",")
+	if s[0] == "" {
+		s = []string{}
+	}
 	return
 }
