@@ -1,4 +1,4 @@
-module github.com/kuritka/awesomeProject/12f-env
+module github.com/kuritka/12f
 
 go 1.17
 
