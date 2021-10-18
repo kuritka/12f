@@ -17,6 +17,9 @@ type Config struct {
         
         // reading slice of strings with default values
         Regions []string `env:"REGIONS, default=[us-east-1,us-east-2,us-west-1]"`
+
+        // reading slice of strings from env var
+        Subnets []string `env:"SUBNETS, default=[10.0.0.0/24,192.168.1.0/24]"`
         
         // inline structure
         Credentials struct {
@@ -47,6 +50,7 @@ type Config struct {
     // SECRET_ACCESS_KEY     = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
     // NAME                  = Hello from 12-factor
     // PORT                  = 9000
+    // SUBNETS               = 10.0.0.0/24,10.0.1.0/24, 10,10.1.0.0/24,  10.1.1.0/24
 
 
     c := Config{Description: "Hello from os.LookupEnv()", Args: []string{"debug=true"}}
@@ -64,6 +68,12 @@ type Config struct {
 		"us-east-1",
 		"us-east-2",
 		"us-west-1"
+	],
+	"Subnets": [
+		"10.0.0.0/24",
+		"10.0.1.0/24",
+		"10,10.1.0.0/24",
+		"10.1.1.0/24"
 	],
 	"Credentials": {
 		"KeyID": "AKIAIOSFODNN7EXAMPLE"

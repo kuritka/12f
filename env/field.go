@@ -32,7 +32,7 @@ func boolean(env env) (b bool, err error) {
 			return
 		}
 	}
-	b = GetEnvAsBoolOrFallback(env.name, d)
+	b, err = GetEnvAsBoolOrFallback(env.name, d)
 	return
 }
 
@@ -63,7 +63,7 @@ func float(env env) (f float64, err error) {
 	}
 	f, err = GetEnvAsFloat64OrFallback(env.name, d)
 	if err != nil {
-		err = fmt.Errorf("can't read %s and parse value %s to float64", env.name, env.def.value)
+		err = fmt.Errorf("can't read %s and parse value '%s' to float64", env.name, env.value)
 	}
 	return
 }
@@ -81,7 +81,7 @@ func integerSlice(env env) (is []int, err error) {
 	}
 	is, err = GetEnvAsArrayOfIntsOrFallback(env.name, d)
 	if err != nil {
-		err = fmt.Errorf("can't parse %s as slice of int %s", env.name, env.value)
+		err = fmt.Errorf("can't parse %s as slice of int '%s'", env.name, env.value)
 	}
 	return
 }
@@ -99,7 +99,7 @@ func floatSlice(env env) (fs []float64, err error) {
 	}
 	fs, err = GetEnvAsArrayOfFloat64OrFallback(env.name, d)
 	if err != nil {
-		err = fmt.Errorf("can't parse %s as slice of float64 %s", env.name, env.value)
+		err = fmt.Errorf("can't parse %s as slice of float64 '%s'", env.name, env.value)
 	}
 	return
 }
@@ -117,7 +117,7 @@ func boolSlice(env env) (bs []bool, err error) {
 	}
 	bs, err = GetEnvAsArrayOfBoolOrFallback(env.name, d)
 	if err != nil {
-		err = fmt.Errorf("can't parse %s as array of ints %s", env.name, env.value)
+		err = fmt.Errorf("can't parse %s as slice of bool '%s'", env.name, env.value)
 	}
 	return
 }

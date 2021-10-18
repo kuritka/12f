@@ -25,71 +25,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	tokenID          = "TOKEN_ID"
-	tokenValue       = "TOKEN_VALUE"
-	tokenRatio       = "TOKEN_RATIO"
-	tokenReadOnly    = "TOKEN_READONLY"
-	tokenHours       = "TOKEN_HOURS"
-	tokenURLs        = "TOKEN_URLS"
-	tokenBools       = "TOKEN_SWITCH"
-	tokenCoordinates = "TOKEN_COORDINATES"
-
-	privateTokenValue = "PRIVATE_TOKEN_VALUE"
-	// #nosec G101;
-	exportedTokenValue        = "EXPORTED_TOKEN_VALUE"
-	privateExportedTokenValue = "PRIVATE_EXPORTED_TOKEN_VALUE"
-
-	primaryEndpointURL  = "PRIMARY_ENDPOINT_URL"
-	failoverEndpointURL = "FAILOVER_ENDPOINT_URL"
-	name                = "NAME"
-	defaultPort         = "PORT"
-	accessKeyID         = "ACCESS_KEY_ID"
-	secretAccessKey     = "SECRET_ACCESS_KEY"
-
-	envUID          = "ENV_UID"
-	envName         = "ENV_NAME"
-	envB            = "ENV_B"
-	envBs           = "ENV_Bs"
-	anonymousSecret = "ANONYMOUS_SECRET"
-	anonymousToken  = "ANONYMOUS_TOKEN"
-	nums            = "ENV_NUMS"
-	envF            = "ENV_F"
-	envFs           = "ENV_Fs"
-)
-
-func cleanup() {
-	_ = os.Unsetenv(tokenID)
-	_ = os.Unsetenv(tokenValue)
-	_ = os.Unsetenv(tokenRatio)
-	_ = os.Unsetenv(tokenReadOnly)
-	_ = os.Unsetenv(tokenHours)
-	_ = os.Unsetenv(tokenURLs)
-	_ = os.Unsetenv(tokenBools)
-	_ = os.Unsetenv(tokenCoordinates)
-
-	_ = os.Unsetenv(privateTokenValue)
-	_ = os.Unsetenv(privateExportedTokenValue)
-	_ = os.Unsetenv(exportedTokenValue)
-
-	_ = os.Unsetenv(primaryEndpointURL)
-	_ = os.Unsetenv(failoverEndpointURL)
-	_ = os.Unsetenv(name)
-	_ = os.Unsetenv(defaultPort)
-	_ = os.Unsetenv(accessKeyID)
-	_ = os.Unsetenv(secretAccessKey)
-
-	_ = os.Unsetenv(envUID)
-	_ = os.Unsetenv(envName)
-	_ = os.Unsetenv(envB)
-	_ = os.Unsetenv(envBs)
-	_ = os.Unsetenv(anonymousSecret)
-	_ = os.Unsetenv(anonymousToken)
-	_ = os.Unsetenv(nums)
-	_ = os.Unsetenv(envF)
-	_ = os.Unsetenv(envFs)
-}
-
 // Testee public test structure
 type Testee struct {
 	ID    int    `env:"TESTEE_ID"`
@@ -202,16 +137,58 @@ func TestSetDefaultEmpty(t *testing.T) {
 
 func TestInvalidValue(t *testing.T) {
 	defer cleanup()
-	os.Setenv(tokenID, "blah")
+	os.Setenv(envString, "invalid")
+	os.Setenv(envBool, "invalid")
+	os.Setenv(envFloat64, "invalid")
+	os.Setenv(envInt, "invalid")
+	os.Setenv(envStringSlice, "[]")
+	os.Setenv(envBoolSlice, "invalid")
+	os.Setenv(envFloat64Slice, "invalid")
+	os.Setenv(envIntSlice, "invalid")
+	//todo: all supported types
 	// arrange
-	type token struct {
-		ID int `env:"TOKEN_ID, default=22"`
+	type token1 struct {
+		envString string `env:"ENV_STRING, default=test"`
 	}
-	tok := &token{}
-	// act
-	err := Bind(tok)
+	type token2 struct {
+		envInt int `env:"ENV_INT, default=22"`
+	}
+	type token3 struct {
+		envBool bool `env:"ENV_BOOL, default=true"`
+	}
+	type token4 struct {
+		envFloat float32 `env:"ENV_FLOAT64, default=22.0"`
+	}
+	type token5 struct {
+		envStringSlice []string `env:"ENV_STRING_SLICE, default=[test,test]"`
+	}
+	type token6 struct {
+		envIntSlice []int `env:"ENV_INT_SLICE, default=[22]"`
+	}
+	type token7 struct {
+		envBoolSlice []bool `env:"ENV_BOOL_SLICE, default=[T]"`
+	}
+	type token8 struct {
+		envFloatSlice []float32 `env:"ENV_FLOAT64_SLICE, default=[22.0]"`
+	}
 
+	// act
 	// assert
+	err := Bind(&token1{})
+	assert.NoError(t, err)
+	err = Bind(&token2{})
+	assert.Error(t, err)
+	err = Bind(&token3{})
+	assert.Error(t, err)
+	err = Bind(&token4{})
+	assert.Error(t, err)
+	err = Bind(&token5{})
+	assert.NoError(t, err)
+	err = Bind(&token6{})
+	assert.Error(t, err)
+	err = Bind(&token7{})
+	assert.Error(t, err)
+	err = Bind(&token8{})
 	assert.Error(t, err)
 }
 
@@ -219,6 +196,7 @@ func TestEmptyValue(t *testing.T) {
 	defer cleanup()
 	os.Setenv(tokenID, "")
 	os.Setenv(tokenValue, "")
+	//todo: all supported types
 	// arrange
 	type token struct {
 		ID    int    `env:"TOKEN_ID, default=22"`
@@ -232,6 +210,21 @@ func TestEmptyValue(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, tok.ID, 22)
 	assert.Equal(t, tok.Value, "hello")
+}
+
+func TestEnvVarDoesntExists(t *testing.T) {
+	defer cleanup()
+	// arrange
+	type token struct {
+		ID int `env:"TOKEN_IDX, default=22"`
+	}
+	tok := &token{ID: 50}
+	// act
+	err := Bind(tok)
+
+	// assert
+	assert.NoError(t, err)
+	assert.Equal(t, 22, tok.ID)
 }
 
 func TestSetFieldWhenVariableDoesntExists(t *testing.T) {
@@ -427,6 +420,30 @@ func TestSetFieldWhenVariableExists(t *testing.T) {
 	assert.Equal(t, 0, tok.ID)
 }
 
+func TestArray(t *testing.T) {
+	defer cleanup()
+	// arrange
+	_ = os.Setenv(tokenValue, "1,2,3")
+	_ = os.Setenv(tokenID, "1, 2, 3")
+	_ = os.Setenv(tokenBools, "1, 0, false, true, F,T")
+	_ = os.Setenv(tokenCoordinates, "1.01, -0.05")
+	type token struct {
+		IDs    []int     `env:"TOKEN_VALUE"`
+		Value  []string  `env:"TOKEN_VALUE"`
+		Bools  []bool    `env:"TOKEN_SWITCH"`
+		Floats []float64 `env:"TOKEN_COORDINATES"`
+	}
+	tok := &token{}
+	// act
+	err := Bind(tok)
+	// assert
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3}, tok.IDs)
+	assert.Equal(t, []string{"1", "2", "3"}, tok.Value)
+	assert.Equal(t, []bool{true, false, false, true, false, true}, tok.Bools)
+	assert.Equal(t, []float64{1.01, -0.05}, tok.Floats)
+}
+
 func TestSetMultipleFieldsByOneVariable(t *testing.T) {
 	// arrange
 	defer cleanup()
@@ -491,8 +508,8 @@ func TestParseSimple(t *testing.T) {
 	// arrange
 	defer cleanup()
 	env := make(map[string]string)
-	env[envName] = "foo"
-	env[envB] = "true"
+	env[envString] = "foo"
+	env[envBool] = "true"
 	setEnv(env)
 
 	type token struct {
@@ -500,19 +517,19 @@ func TestParseSimple(t *testing.T) {
 		Value string `env:"TOKEN_VALUE"`
 	}
 	type s struct {
-		UID       int       `env:"ENV_UID,default=55"`
-		name      string    `env:"ENV_NAME,require=true, default=michal"`
-		B         bool      `env:"ENV_B"`
-		Bs        []bool    `env:"ENV_BS,default=[true, false, true]"`
-		nums      []int     `env:"ENV_NUMS,default=[10,0,5, 3, 4, 5]"`
-		F         float64   `env:"ENV_F, default=0.000000002121"`
-		Fs        []float64 `env:"ENV_Fs,default=[0.0021,0.002,1.13,2.15]"`
+		UID       int       `env:"ENV_INT,default=55"`
+		name      string    `env:"ENV_STRING,require=true, default=michal"`
+		B         bool      `env:"ENV_BOOL"`
+		Bs        []bool    `env:"ENV_BOOL_SLICE,default=[true, false, true]"`
+		nums      []int     `env:"ENV_INT_SLICE,default=[10,0,5, 3, 4, 5]"`
+		F         float64   `env:"ENV_FLOAT64, default=0.000000002121"`
+		Fs        []float64 `env:"ENV_FLOAT64_SLICE,default=[0.0021,0.002,1.13,2.15]"`
 		surname   string
 		Token     token
 		Anonymous struct {
-			secret      string `env:"ANONYMOUS_SECRET"`
+			secret      string `env:"ENV_STRING_PRIVATE"`
 			TopSecret   bool
-			TokenBase64 string   `env:"ANONYMOUS_TOKEN"`
+			TokenBase64 string   `env:"ENV_STRING_EXPORTED"`
 			arr         []string `env:"ANONYMOUS_ARR, default= [abc, xyz, 123] "`
 		}
 	}
@@ -585,4 +602,70 @@ func setEnv(m map[string]string) {
 	for k, v := range m {
 		_ = os.Setenv(k, v)
 	}
+}
+
+const (
+	tokenID          = "TOKEN_ID"
+	tokenValue       = "TOKEN_VALUE"
+	tokenRatio       = "TOKEN_RATIO"
+	tokenReadOnly    = "TOKEN_READONLY"
+	tokenHours       = "TOKEN_HOURS"
+	tokenURLs        = "TOKEN_URLS"
+	tokenBools       = "TOKEN_SWITCH"
+	tokenCoordinates = "TOKEN_COORDINATES"
+
+	privateTokenValue = "PRIVATE_TOKEN_VALUE"
+	// #nosec G101;
+	exportedTokenValue        = "EXPORTED_TOKEN_VALUE"
+	privateExportedTokenValue = "PRIVATE_EXPORTED_TOKEN_VALUE"
+
+	primaryEndpointURL  = "PRIMARY_ENDPOINT_URL"
+	failoverEndpointURL = "FAILOVER_ENDPOINT_URL"
+	name                = "NAME"
+	defaultPort         = "PORT"
+	accessKeyID         = "ACCESS_KEY_ID"
+	secretAccessKey     = "SECRET_ACCESS_KEY"
+
+	envInt            = "ENV_INT"
+	envString         = "ENV_STRING"
+	envStringSlice    = "ENV_STRING_SLICE"
+	envBool           = "ENV_BOOL"
+	envBoolSlice      = "ENV_BOOL_SLICE"
+	envFloat64        = "ENV_FLOAT64"
+	envFloat64Slice   = "ENV_FLOAT64_SLICE"
+	envStringPrivate  = "ENV_STRING_PRIVATE"
+	envStringExported = "ENV_STRING_EXPORTED"
+	envIntSlice       = "ENV_INT_SLICE"
+)
+
+func cleanup() {
+	_ = os.Unsetenv(tokenID)
+	_ = os.Unsetenv(tokenValue)
+	_ = os.Unsetenv(tokenRatio)
+	_ = os.Unsetenv(tokenReadOnly)
+	_ = os.Unsetenv(tokenHours)
+	_ = os.Unsetenv(tokenURLs)
+	_ = os.Unsetenv(tokenBools)
+	_ = os.Unsetenv(tokenCoordinates)
+
+	_ = os.Unsetenv(privateTokenValue)
+	_ = os.Unsetenv(privateExportedTokenValue)
+	_ = os.Unsetenv(exportedTokenValue)
+
+	_ = os.Unsetenv(primaryEndpointURL)
+	_ = os.Unsetenv(failoverEndpointURL)
+	_ = os.Unsetenv(name)
+	_ = os.Unsetenv(defaultPort)
+	_ = os.Unsetenv(accessKeyID)
+	_ = os.Unsetenv(secretAccessKey)
+
+	_ = os.Unsetenv(envInt)
+	_ = os.Unsetenv(envString)
+	_ = os.Unsetenv(envBool)
+	_ = os.Unsetenv(envBoolSlice)
+	_ = os.Unsetenv(envStringPrivate)
+	_ = os.Unsetenv(envStringExported)
+	_ = os.Unsetenv(envIntSlice)
+	_ = os.Unsetenv(envFloat64)
+	_ = os.Unsetenv(envFloat64Slice)
 }
