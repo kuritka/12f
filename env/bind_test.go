@@ -221,7 +221,7 @@ func TestEmptyValue(t *testing.T) {
 	os.Setenv(tokenValue, "")
 	// arrange
 	type token struct {
-		ID int `env:"TOKEN_ID, default=22"`
+		ID    int    `env:"TOKEN_ID, default=22"`
 		Value string `env:"TOKEN_VALUE, default=hello"`
 	}
 	tok := &token{}
