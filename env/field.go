@@ -47,7 +47,7 @@ func integer(env env) (i int, err error) {
 	}
 	i, err = GetEnvAsIntOrFallback(env.name, d)
 	if err != nil {
-		err = fmt.Errorf("can't read %s and parse value %s to int", env.name, env.def.value)
+		err = fmt.Errorf("can't read %s and parse value '%s' to int", env.name, env.value)
 	}
 	return
 }

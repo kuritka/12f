@@ -51,8 +51,6 @@ type env struct {
 
 type meta map[string]field
 
-const ()
-
 // Bind binds environment variables into structure
 func Bind(s interface{}) (err error) {
 	var meta meta
@@ -198,7 +196,7 @@ func roll(value reflect.Value, n, prefix string) (m meta, err error) {
 			fieldName:  tf.Name,
 			fieldType:  &tf.Type,
 			fieldValue: &vf,
-			public:     tf.IsExported(),
+			public:     tf.PkgPath == "",
 		}
 	}
 	return m, err

@@ -200,6 +200,40 @@ func TestSetDefaultEmpty(t *testing.T) {
 	assert.Equal(t, []float64{}, tok.Coordinates)
 }
 
+func TestInvalidValue(t *testing.T) {
+	defer cleanup()
+	os.Setenv(tokenID, "blah")
+	// arrange
+	type token struct {
+		ID int `env:"TOKEN_ID, default=22"`
+	}
+	tok := &token{}
+	// act
+	err := Bind(tok)
+
+	// assert
+	assert.Error(t, err)
+}
+
+func TestEmptyValue(t *testing.T) {
+	defer cleanup()
+	os.Setenv(tokenID, "")
+	os.Setenv(tokenValue, "")
+	// arrange
+	type token struct {
+		ID int `env:"TOKEN_ID, default=22"`
+		Value string `env:"TOKEN_VALUE, default=hello"`
+	}
+	tok := &token{}
+	// act
+	err := Bind(tok)
+
+	// assert
+	assert.NoError(t, err)
+	assert.Equal(t, tok.ID, 22)
+	assert.Equal(t, tok.Value, "hello")
+}
+
 func TestSetFieldWhenVariableDoesntExists(t *testing.T) {
 	defer cleanup()
 
