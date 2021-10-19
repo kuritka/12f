@@ -137,15 +137,14 @@ func TestSetDefaultEmpty(t *testing.T) {
 
 func TestInvalidValue(t *testing.T) {
 	defer cleanup()
-	os.Setenv(envString, "invalid")
-	os.Setenv(envBool, "invalid")
-	os.Setenv(envFloat64, "invalid")
-	os.Setenv(envInt, "invalid")
-	os.Setenv(envStringSlice, "[]")
-	os.Setenv(envBoolSlice, "invalid")
-	os.Setenv(envFloat64Slice, "invalid")
-	os.Setenv(envIntSlice, "invalid")
-	//todo: all supported types
+	_ = os.Setenv(envString, "invalid")
+	_ = os.Setenv(envBool, "invalid")
+	_ = os.Setenv(envFloat64, "invalid")
+	_ = os.Setenv(envInt, "invalid")
+	_ = os.Setenv(envStringSlice, "[]")
+	_ = os.Setenv(envBoolSlice, "invalid")
+	_ = os.Setenv(envFloat64Slice, "invalid")
+	_ = os.Setenv(envIntSlice, "invalid")
 	// arrange
 	type token1 struct {
 		envString string `env:"ENV_STRING, default=test"`
@@ -194,13 +193,24 @@ func TestInvalidValue(t *testing.T) {
 
 func TestEmptyValue(t *testing.T) {
 	defer cleanup()
-	os.Setenv(tokenID, "")
-	os.Setenv(tokenValue, "")
-	//todo: all supported types
+	_ = os.Setenv(envString, "")
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envBool, "")
+	_ = os.Setenv(envFloat64, "")
+	_ = os.Setenv(envStringSlice, "")
+	_ = os.Setenv(envIntSlice, "")
+	_ = os.Setenv(envBoolSlice, "")
+	_ = os.Setenv(envFloat64Slice, "")
 	// arrange
 	type token struct {
-		ID    int    `env:"TOKEN_ID, default=22"`
-		Value string `env:"TOKEN_VALUE, default=hello"`
+		envInt         int       `env:"ENV_INT, default=22"`
+		envString      string    `env:"ENV_STRING, default=hello"`
+		envBool        bool      `env:"ENV_BOOL, default=T"`
+		envFloat       float64   `env:"ENV_FLOAT, default=1.0"`
+		envIntSlice    []int     `env:"ENV_INT_SLICE, default=[10]"`
+		envStringSlice []string  `env:"ENV_STRING_SLICE, default=[10]"`
+		envBoolSlice   []bool    `env:"ENV_BOOL_SLICE, default=[1]"`
+		envFloatSlice  []float64 `env:"ENV_FLOAT_SLICE, default=[10]"`
 	}
 	tok := &token{}
 	// act
@@ -208,8 +218,14 @@ func TestEmptyValue(t *testing.T) {
 
 	// assert
 	assert.NoError(t, err)
-	assert.Equal(t, tok.ID, 22)
-	assert.Equal(t, tok.Value, "hello")
+	assert.Equal(t, tok.envInt, 22)
+	assert.Equal(t, tok.envString, "hello")
+	assert.Equal(t, tok.envBool, true)
+	assert.Equal(t, tok.envFloat, 1.0)
+	assert.Equal(t, tok.envIntSlice, []int{10})
+	assert.Equal(t, tok.envStringSlice, []string{"10"})
+	assert.Equal(t, tok.envBoolSlice, []bool{true})
+	assert.Equal(t, tok.envFloatSlice, []float64{10})
 }
 
 func TestEnvVarDoesntExists(t *testing.T) {
@@ -386,7 +402,7 @@ func TestNoEnv(t *testing.T) {
 func TestSpecialSymbols(t *testing.T) {
 	defer cleanup()
 	// arrange
-	os.Setenv(tokenValue, `----~<>/?.;:/!@#$%^&*()_+_=---\-\`)
+	_ = os.Setenv(tokenValue, `----~<>/?.;:/!@#$%^&*()_+_=---\-\`)
 	type token struct {
 		ID    string   `env:"TOKEN_ID, default=----~<>/?.;:/!@#$%^&*()_+_=---\\-"`
 		Value string   `env:"TOKEN_VALUE, require=true"`
