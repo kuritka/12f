@@ -62,6 +62,33 @@ func TestParseNotPointer(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestInvalidEnvVar(t *testing.T) {
+	defer cleanup()
+	// arrange
+	type token struct {
+		ID int `env:"GG%%^"`
+	}
+	// act
+	tok := &token{ID: 5}
+	err := Bind(tok)
+	// assert
+	assert.NoError(t, err)
+	assert.Equal(t, 0, tok.ID)
+}
+
+func TestUnsupportedDataType(t *testing.T) {
+	defer cleanup()
+	// arrange
+	type token struct {
+		ID reflect.Type `env:"TOKEN_ID"`
+	}
+	// act
+	tok := &token{}
+	err := Bind(tok)
+	// assert
+	assert.Error(t, err)
+}
+
 func TestENVVARIsRequiredError(t *testing.T) {
 	defer cleanup()
 	// arrange
@@ -227,6 +254,106 @@ func TestEmptyValue(t *testing.T) {
 	assert.Equal(t, tok.envStringSlice, []string{"10"})
 	assert.Equal(t, tok.envBoolSlice, []bool{true})
 	assert.Equal(t, tok.envFloatSlice, []float64{10})
+}
+
+func TestProtected(t *testing.T) {
+	defer cleanup()
+	_ = os.Setenv(envString, "200")
+	_ = os.Setenv(envInt, "200")
+	_ = os.Setenv(envBool, "false")
+	_ = os.Setenv(envFloat64, "200")
+	_ = os.Setenv(envStringSlice, "2,0,0")
+	_ = os.Setenv(envIntSlice, "2,0,0")
+	_ = os.Setenv(envBoolSlice, "1,0,0")
+	_ = os.Setenv(envFloat64Slice, "2,0,0")
+	// arrange
+	type token struct {
+		envInt         int       `env:"ENV_INT, protected=true, default=100"`
+		envString      string    `env:"ENV_STRING, default=100, protected=true"`
+		envBool        bool      `env:"ENV_BOOL, default=F, protected=true"`
+		envFloat       float64   `env:"ENV_FLOAT64, default=100, protected =true"`
+		envIntSlice    []int     `env:"ENV_INT_SLICE, default=[1,0,0], protected=true"`
+		envStringSlice []string  `env:"ENV_STRING_SLICE, protected=true, default=[1,0,0]"`
+		envBoolSlice   []bool    `env:"ENV_BOOL_SLICE, protected=true, default=[1,0,0]"`
+		envFloatSlice  []float64 `env:"ENV_FLOAT64_SLICE, protected=true, default=[100,100,100]"`
+	}
+	type token2 struct {
+		envInt         int       `env:"ENV_INT, protected=false, default=100"`
+		envString      string    `env:"ENV_STRING, default=100, protected=false"`
+		envBool        bool      `env:"ENV_BOOL, default=F, protected=false"`
+		envFloat       float64   `env:"ENV_FLOAT64, default=100"`
+		envIntSlice    []int     `env:"ENV_INT_SLICE, default=[1,0,0]"`
+		envStringSlice []string  `env:"ENV_STRING_SLICE, default=[1,0,0]"`
+		envBoolSlice   []bool    `env:"ENV_BOOL_SLICE, protected=false, default=[1,0,0]"`
+		envFloatSlice  []float64 `env:"ENV_FLOAT64_SLICE, protected=false, default=[100,100,100]"`
+	}
+	unprotected := &token2{
+		envInt:         300,
+		envString:      "300",
+		envFloat:       300.0,
+		envBool:        true,
+		envIntSlice:    []int{3, 0, 0},
+		envBoolSlice:   []bool{true, true, true},
+		envStringSlice: []string{"300"},
+		envFloatSlice:  []float64{3, 0, 0},
+	}
+	unprotectedEmpty := &token2{}
+
+	filled := &token{
+		envInt:         300,
+		envString:      "300",
+		envFloat:       300.0,
+		envBool:        true,
+		envIntSlice:    []int{3, 0, 0},
+		envBoolSlice:   []bool{true, true, true},
+		envStringSlice: []string{"300"},
+		envFloatSlice:  []float64{3, 0, 0},
+	}
+	empty := &token{}
+	// act
+	err1 := Bind(filled)
+	err2 := Bind(empty)
+	err3 := Bind(unprotected)
+	err4 := Bind(unprotectedEmpty)
+
+	// assert
+	assert.NoError(t, err1)
+	assert.Equal(t, filled.envInt, 300)
+	assert.Equal(t, filled.envString, "300")
+	assert.Equal(t, filled.envBool, true)
+	assert.Equal(t, filled.envFloat, 300.0)
+	assert.Equal(t, filled.envIntSlice, []int{3, 0, 0})
+	assert.Equal(t, filled.envStringSlice, []string{"300"})
+	assert.Equal(t, filled.envBoolSlice, []bool{true, true, true})
+	assert.Equal(t, filled.envFloatSlice, []float64{3, 0, 0})
+	assert.NoError(t, err2)
+	assert.Equal(t, empty.envInt, 200)
+	assert.Equal(t, empty.envString, "200")
+	assert.Equal(t, empty.envBool, false)
+	assert.Equal(t, empty.envFloat, 200.0)
+	assert.Equal(t, empty.envIntSlice, []int{2, 0, 0})
+	assert.Equal(t, empty.envStringSlice, []string{"2", "0", "0"})
+	assert.Equal(t, empty.envBoolSlice, []bool{true, false, false})
+	assert.Equal(t, empty.envFloatSlice, []float64{2, 0, 0})
+
+	assert.NoError(t, err3)
+	assert.Equal(t, unprotected.envInt, 200)
+	assert.Equal(t, unprotected.envString, "200")
+	assert.Equal(t, unprotected.envBool, false)
+	assert.Equal(t, unprotected.envFloat, 200.0)
+	assert.Equal(t, unprotected.envIntSlice, []int{2, 0, 0})
+	assert.Equal(t, unprotected.envStringSlice, []string{"2", "0", "0"})
+	assert.Equal(t, unprotected.envBoolSlice, []bool{true, false, false})
+	assert.Equal(t, unprotected.envFloatSlice, []float64{2, 0, 0})
+	assert.NoError(t, err4)
+	assert.Equal(t, unprotectedEmpty.envInt, 200)
+	assert.Equal(t, unprotectedEmpty.envString, "200")
+	assert.Equal(t, unprotectedEmpty.envBool, false)
+	assert.Equal(t, unprotectedEmpty.envFloat, 200.0)
+	assert.Equal(t, unprotectedEmpty.envIntSlice, []int{2, 0, 0})
+	assert.Equal(t, unprotectedEmpty.envStringSlice, []string{"2", "0", "0"})
+	assert.Equal(t, unprotectedEmpty.envBoolSlice, []bool{true, false, false})
+	assert.Equal(t, unprotectedEmpty.envFloatSlice, []float64{2, 0, 0})
 }
 
 func TestEnvVarDoesntExists(t *testing.T) {

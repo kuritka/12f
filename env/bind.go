@@ -22,6 +22,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"unsafe"
 )
@@ -41,12 +42,13 @@ type strTag struct {
 }
 
 type env struct {
-	value   string
-	name    string
-	tagName string
-	def     strTag
-	req     strTag
-	present bool
+	value     string
+	name      string
+	tagName   string
+	def       strTag
+	req       strTag
+	protected strTag
+	present   bool
 }
 
 type meta map[string]field
@@ -80,6 +82,10 @@ func bind(m meta) (err error) {
 		switch v.fieldValue.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			var i int
+			if v.env.protected.isTrue() && v.fieldValue.Int() != 0 {
+				// field is protected and value is already set. Binding is skipped
+				continue
+			}
 			i, err = integer(v.env)
 			if err != nil {
 				return
@@ -89,6 +95,10 @@ func bind(m meta) (err error) {
 
 		case reflect.Bool:
 			var b bool
+			if v.env.protected.isTrue() {
+				// field is protected and value is already set. Binding is skipped
+				continue
+			}
 			b, err = boolean(v.env)
 			if err != nil {
 				return
@@ -98,6 +108,10 @@ func bind(m meta) (err error) {
 
 		case reflect.Float32, reflect.Float64:
 			var fl float64
+			if v.env.protected.isTrue() && v.fieldValue.Float() != 0. {
+				// field is protected and value is already set. Binding is skipped
+				continue
+			}
 			fl, err = float(v.env)
 			if err != nil {
 				return
@@ -107,12 +121,19 @@ func bind(m meta) (err error) {
 
 		case reflect.String:
 			var s string
+			if v.env.protected.isTrue() && v.fieldValue.String() != "" {
+				// field is protected and value is already set. Binding is skipped
+				continue
+			}
 			s = GetEnvAsStringOrFallback(v.env.name, v.env.def.value)
 			f.SetString(s)
 			continue
 
 		case reflect.Slice:
-
+			if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+				// field is protected and value is already set. Binding is skipped
+				continue
+			}
 			switch f.Interface().(type) {
 			case []string:
 				var ss []string
@@ -204,7 +225,7 @@ func roll(value reflect.Value, n, prefix string) (m meta, err error) {
 
 // parseTag, retrieves env info and metadata
 func parseTag(tag, prefix string) (e env, err error) {
-	var def, req strTag
+	var def, req, protected strTag
 	var tagName = getTagName(tag)
 	req, err = getTagProperty(tag, "require")
 	if err != nil {
@@ -214,15 +235,20 @@ func parseTag(tag, prefix string) (e env, err error) {
 	if err != nil {
 		return
 	}
+	protected, err = getTagProperty(tag, "protected")
+	if err != nil {
+		return
+	}
 	envName := getEnvName(tagName, prefix)
 	value, exists := os.LookupEnv(envName)
 	e = env{
-		name:    envName,
-		tagName: tagName,
-		value:   value,
-		req:     req,
-		def:     def,
-		present: exists,
+		name:      envName,
+		tagName:   tagName,
+		value:     value,
+		req:       req,
+		def:       def,
+		protected: protected,
+		present:   exists,
 	}
 	return
 }
@@ -245,7 +271,7 @@ func getTagProperty(tag, t string) (r strTag, err error) {
 	r = strTag{}
 	var findRegex, removeRegex *regexp.Regexp
 	//	findRegex, err = regexp.Compile(",\\s*" + t + "\\s*=((\\s*([\\[\\w*\\,*\\.*\\s*\\-*])*\\])|(\\s*\\w*\\.*\\-*)*)")
-	findRegex, err = regexp.Compile(",\\s*" + t + "\\s*=((\\s*([" + arr + "])*\\])|(" + scalar + ")*)")
+	findRegex, err = regexp.Compile(",\\s*" + t + "\\s*=((\\s*\\[[" + arr + "]*\\])|(" + scalar + ")*)")
 	if err != nil {
 		err = fmt.Errorf("ivalid %s", t)
 		return
@@ -276,4 +302,12 @@ func (t strTag) asStringSlice() (s []string) {
 		s = []string{}
 	}
 	return
+}
+
+func (t strTag) isTrue() bool {
+	if !t.exists {
+		return false
+	}
+	b, _ := strconv.ParseBool(t.value)
+	return b
 }
