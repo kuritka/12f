@@ -38,16 +38,16 @@ func TestDefaultAndRequireinOppositeOrder(t *testing.T) {
 	_ = os.Setenv(tokenID, "")
 	_ = os.Setenv(tokenValue, "")
 	type token struct {
-		ID    int    `env:"TOKEN_ID, require=true, default = 066"`
-		Value string `env:"TOKEN_VALUE, default = AAAA, require=true"`
+		ID    int    `env:"TOKEN_ID, require=true, default = 066, protected=true"`
+		Value string `env:"TOKEN_VALUE, protected=true, default = AAAA, require=true"`
 	}
 	// act
 	tok := &token{ID: 5}
 	err := Bind(tok)
 	// assert
 	assert.NoError(t, err)
-	assert.Equal(t, 66, tok.ID)
-	assert.Equal(t, "AAAA", tok.Value)
+	assert.Equal(t, 5, tok.ID)
+	assert.Equal(t, "", tok.Value)
 }
 
 func TestParseNil(t *testing.T) {
@@ -230,30 +230,54 @@ func TestEmptyValue(t *testing.T) {
 	_ = os.Setenv(envBoolSlice, "")
 	_ = os.Setenv(envFloat64Slice, "")
 	// arrange
-	type token struct {
-		envInt         int       `env:"ENV_INT, default=22"`
-		envString      string    `env:"ENV_STRING, default=hello"`
-		envBool        bool      `env:"ENV_BOOL, default=T"`
-		envFloat       float64   `env:"ENV_FLOAT, default=1.0"`
-		envIntSlice    []int     `env:"ENV_INT_SLICE, default=[10]"`
-		envStringSlice []string  `env:"ENV_STRING_SLICE, default=[10]"`
-		envBoolSlice   []bool    `env:"ENV_BOOL_SLICE, default=[1]"`
-		envFloatSlice  []float64 `env:"ENV_FLOAT_SLICE, default=[10]"`
+	// arrange
+	type token1 struct {
+		envString string `env:"ENV_STRING, default=test"`
 	}
-	tok := &token{}
-	// act
-	err := Bind(tok)
+	type token2 struct {
+		envInt int `env:"ENV_INT, default=22"`
+	}
+	type token3 struct {
+		envBool bool `env:"ENV_BOOL, default=true"`
+	}
+	type token4 struct {
+		envFloat float32 `env:"ENV_FLOAT64, default=22.0"`
+	}
+	type token5 struct {
+		envStringSlice []string `env:"ENV_STRING_SLICE, default=[test,test]"`
+	}
+	type token6 struct {
+		envIntSlice []int `env:"ENV_INT_SLICE, default=[22]"`
+	}
+	type token7 struct {
+		envBoolSlice []bool `env:"ENV_BOOL_SLICE, default=[T]"`
+	}
+	type token8 struct {
+		envFloatSlice []float32 `env:"ENV_FLOAT64_SLICE, default=[22.0]"`
+	}
 
+	// act
 	// assert
+	t1 := &token1{}
+	err := Bind(t1)
 	assert.NoError(t, err)
-	assert.Equal(t, tok.envInt, 22)
-	assert.Equal(t, tok.envString, "hello")
-	assert.Equal(t, tok.envBool, true)
-	assert.Equal(t, tok.envFloat, 1.0)
-	assert.Equal(t, tok.envIntSlice, []int{10})
-	assert.Equal(t, tok.envStringSlice, []string{"10"})
-	assert.Equal(t, tok.envBoolSlice, []bool{true})
-	assert.Equal(t, tok.envFloatSlice, []float64{10})
+	assert.Equal(t, "", t1.envString)
+	err = Bind(&token2{})
+	assert.Error(t, err)
+	err = Bind(&token3{})
+	assert.Error(t, err)
+	err = Bind(&token4{})
+	assert.Error(t, err)
+	t5 := &token5{}
+	err = Bind(t5)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{}, t5.envStringSlice)
+	err = Bind(&token6{})
+	assert.Error(t, err)
+	err = Bind(&token7{})
+	assert.Error(t, err)
+	err = Bind(&token8{})
+	assert.Error(t, err)
 }
 
 func TestProtected(t *testing.T) {

@@ -39,7 +39,7 @@ import (
 // GetEnvAsStringOrFallback returns the env variable for the given key
 // and falls back to the given defaultValue if not set
 func GetEnvAsStringOrFallback(key, defaultValue string) string {
-	if v := os.Getenv(key); v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		return v
 	}
 	return defaultValue
@@ -49,8 +49,10 @@ func GetEnvAsStringOrFallback(key, defaultValue string) string {
 // and falls back to the given defaultValue if not set
 // GetEnvAsArrayOfStringsOrFallback trims all whitespaces from input i.e. "us, fr, au" -> {"us","fr","au"}
 func GetEnvAsArrayOfStringsOrFallback(key string, defaultValue []string) []string {
-	v := GetEnvAsStringOrFallback(key, "")
-	if v != "" {
+	if v, ex := os.LookupEnv(key); ex {
+		if v == "" {
+			return []string{}
+		}
 		arr := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		if len(arr) != 0 {
 			return arr
@@ -62,8 +64,7 @@ func GetEnvAsArrayOfStringsOrFallback(key string, defaultValue []string) []strin
 // GetEnvAsArrayOfIntsOrFallback returns the env variable for the given key
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfIntsOrFallback(key string, defaultValue []int) (ints []int, err error) {
-	v := GetEnvAsStringOrFallback(key, "")
-	if v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var i int
@@ -81,8 +82,7 @@ func GetEnvAsArrayOfIntsOrFallback(key string, defaultValue []int) (ints []int, 
 // GetEnvAsArrayOfFloat64OrFallback returns the env variable for the given key
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfFloat64OrFallback(key string, defaultValue []float64) (floats []float64, err error) {
-	v := GetEnvAsStringOrFallback(key, "")
-	if v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var f float64
@@ -100,8 +100,7 @@ func GetEnvAsArrayOfFloat64OrFallback(key string, defaultValue []float64) (float
 // GetEnvAsArrayOfBoolOrFallback returns the env variable for the given key
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfBoolOrFallback(key string, defaultValue []bool) (bools []bool, err error) {
-	v := GetEnvAsStringOrFallback(key, "")
-	if v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var b bool
@@ -119,7 +118,7 @@ func GetEnvAsArrayOfBoolOrFallback(key string, defaultValue []bool) (bools []boo
 // GetEnvAsIntOrFallback returns the env variable (parsed as integer) for
 // the given key and falls back to the given defaultValue if not set
 func GetEnvAsIntOrFallback(key string, defaultValue int) (int, error) {
-	if v := os.Getenv(key); v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		value, err := strconv.Atoi(v)
 		if err != nil {
 			return defaultValue, err
@@ -132,7 +131,7 @@ func GetEnvAsIntOrFallback(key string, defaultValue int) (int, error) {
 // GetEnvAsFloat64OrFallback returns the env variable (parsed as float64) for
 // the given key and falls back to the given defaultValue if not set
 func GetEnvAsFloat64OrFallback(key string, defaultValue float64) (float64, error) {
-	if v := os.Getenv(key); v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		value, err := strconv.ParseFloat(v, 64)
 		if err != nil {
 			return defaultValue, err
@@ -145,7 +144,7 @@ func GetEnvAsFloat64OrFallback(key string, defaultValue float64) (float64, error
 // GetEnvAsBoolOrFallback returns the env variable for the given key,
 // parses it as boolean and falls back to the given defaultValue if not set
 func GetEnvAsBoolOrFallback(key string, defaultValue bool) (val bool, err error) {
-	if v := os.Getenv(key); v != "" {
+	if v, ex := os.LookupEnv(key); ex {
 		val, err = strconv.ParseBool(v)
 		if err != nil {
 			return
