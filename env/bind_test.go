@@ -20,6 +20,7 @@ package env
 import (
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -480,6 +481,25 @@ func TestSetMultipleFieldsByOneVariable(t *testing.T) {
 	assert.Equal(t, tok.ID2, 10)
 	assert.Equal(t, tok.Value1, val)
 	assert.Equal(t, tok.Value2, val)
+}
+
+func TestLowercase(t *testing.T) {
+	// arrange
+	val := "private field"
+	_ = os.Unsetenv(strings.ToLower(strings.ToLower(privateTokenValue)))
+	_ = os.Setenv(strings.ToLower(privateTokenValue), val)
+	// act
+	type token struct {
+		valLowerCase string `env:"private_token_value"`
+		valUpperCase string `env:"PRIVATE_TOKEN_VALUE"`
+	}
+	tok := &token{}
+
+	// assert
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, val, tok.valLowerCase)
+	assert.Equal(t, "", tok.valUpperCase)
 }
 
 func TestPrefixSuccessfully(t *testing.T) {
