@@ -68,24 +68,6 @@ func float(env env) (f float64, err error) {
 	return
 }
 
-func integerSlice(env env) (is []int, err error) {
-	var d = make([]int, 0)
-	for _, s := range env.def.asStringSlice() {
-		var i int
-		i, err = strconv.Atoi(strings.Trim(s, " "))
-		if err != nil {
-			err = fmt.Errorf("can't convert default %s to slice of int", env.def.asStringSlice())
-			return
-		}
-		d = append(d, i)
-	}
-	is, err = GetEnvAsArrayOfIntsOrFallback(env.name, d)
-	if err != nil {
-		err = fmt.Errorf("can't parse %s as slice of int '%s'", env.name, env.value)
-	}
-	return
-}
-
 func floatSlice(env env) (fs []float64, err error) {
 	var d = make([]float64, 0)
 	for _, s := range env.def.asStringSlice() {

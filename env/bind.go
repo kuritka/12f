@@ -130,45 +130,70 @@ func bind(m meta) (err error) {
 			continue
 
 		case reflect.Slice:
-			if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
-				// field is protected and value is already set. Binding is skipped
-				continue
-			}
+
 			switch f.Interface().(type) {
 			case []string:
+				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+					continue
+				}
 				var ss []string
 				ss = GetEnvAsArrayOfStringsOrFallback(v.env.name, v.env.def.asStringSlice())
 				f.Set(reflect.ValueOf(ss))
 				continue
 
-			case []int, []int8, []int16, []int32, []int64:
-				var is []int
-				is, err = integerSlice(v.env)
+			case []int, []int8, []int16, []int32, []int64, []float32, []float64, []uint, []uint8, []uint16, []uint32, []uint64:
+				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+					continue
+				}
+				var floats []float64
+				floats, err = floatSlice(v.env)
 				if err != nil {
 					return
 				}
-				f.Set(reflect.ValueOf(is))
-				continue
-
-			case []float64:
-				var fs []float64
-				fs, err = floatSlice(v.env)
-				if err != nil {
-					return
+				switch f.Interface().(type) {
+				case []uint:
+					f.Set(reflect.ValueOf(convertToUInt(floats)))
+					continue
+				case []uint8:
+					f.Set(reflect.ValueOf(convertToUInt8(floats)))
+					continue
+				case []uint16:
+					f.Set(reflect.ValueOf(convertToUInt16(floats)))
+					continue
+				case []uint32:
+					f.Set(reflect.ValueOf(convertToUInt32(floats)))
+					continue
+				case []uint64:
+					f.Set(reflect.ValueOf(convertToUInt64(floats)))
+					continue
+				case []int:
+					f.Set(reflect.ValueOf(convertToInt(floats)))
+					continue
+				case []int8:
+					f.Set(reflect.ValueOf(convertToInt8(floats)))
+					continue
+				case []int16:
+					f.Set(reflect.ValueOf(convertToInt16(floats)))
+					continue
+				case []int32:
+					f.Set(reflect.ValueOf(convertToInt32(floats)))
+					continue
+				case []int64:
+					f.Set(reflect.ValueOf(convertToInt64(floats)))
+					continue
+				case []float32:
+					f.Set(reflect.ValueOf(convertToFloat32(floats)))
+					continue
+				case []float64:
+					f.Set(reflect.ValueOf(floats))
+					continue
 				}
-				f.Set(reflect.ValueOf(fs))
-				continue
-
-			case []float32:
-				var fs []float64
-				fs, err = floatSlice(v.env)
-				if err != nil {
-					return
-				}
-				f.Set(reflect.ValueOf(convertToFloat32(fs)))
 				continue
 
 			case []bool:
+				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+					continue
+				}
 				var bs []bool
 				bs, err = boolSlice(v.env)
 				if err != nil {

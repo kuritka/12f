@@ -26,3 +26,103 @@ func convertToFloat32(ar []float64) []float32 {
 	}
 	return newar
 }
+
+func convertToInt(ar []float64) []int {
+	newar := make([]int, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = int(v)
+	}
+	return newar
+}
+
+func convertToInt8(ar []float64) []int8 {
+	newar := make([]int8, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = int8(v)
+	}
+	return newar
+}
+
+func convertToInt16(ar []float64) []int16 {
+	newar := make([]int16, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = int16(v)
+	}
+	return newar
+}
+
+func convertToInt32(ar []float64) []int32 {
+	newar := make([]int32, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = int32(v)
+	}
+	return newar
+}
+
+func convertToInt64(ar []float64) []int64 {
+	newar := make([]int64, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = int64(v)
+	}
+	return newar
+}
+
+func convertToUInt(ar []float64) []uint {
+	newar := make([]uint, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = uint(v)
+	}
+	return newar
+}
+
+func convertToUInt8(ar []float64) []uint8 {
+	newar := make([]uint8, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = uint8(v)
+	}
+	return newar
+}
+
+func convertToUInt16(ar []float64) []uint16 {
+	newar := make([]uint16, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = uint16(v)
+	}
+	return newar
+}
+
+func convertToUInt32(ar []float64) []uint32 {
+	newar := make([]uint32, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = uint32(v)
+	}
+	return newar
+}
+
+func convertToUInt64(ar []float64) []uint64 {
+	newar := make([]uint64, len(ar))
+	var v float64
+	var i int
+	for i, v = range ar {
+		newar[i] = uint64(v)
+	}
+	return newar
+}
