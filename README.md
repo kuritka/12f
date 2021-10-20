@@ -102,9 +102,10 @@ func main() {
 ```
 
 ## supported types
-env-binder supports all types listed in the following table.  In addition, it should be noted that in the case 
+Env-binder supports all types listed in the following table.  In addition, it should be noted that in the case 
 of slices, env-binder creates an instance of an empty slice if the value of the environment variable is 
-declared and its value is empty string. In this case env-binder returns an empty slice instead of the vulnerable nil.  
+declared and its value is empty string. In this case env-binder returns an empty slice instead of the vulnerable nil. 
+
 | primitive types | slices |
 |---|---|
 | `int`,`int8`,`int16`,`int32`,`int64` | `[]int`,`[]int8`,`[]int16`,`[]int32`,`[]int64` |
