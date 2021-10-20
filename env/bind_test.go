@@ -791,6 +791,663 @@ func TestService(t *testing.T) {
 	assert.Equal(t, `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`, c.Credentials.secretKey)
 }
 
+func TestTypeInt(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        int `env:"ENV_INT"`
+		filled       int `env:"ENV_INT2, require=true"`
+		protected    int `env:"ENV_INT, protected=true"`
+		doesntExists int `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, tok.empty)
+	assert.Equal(t, 1, tok.filled)
+	assert.Equal(t, 80, tok.protected)
+	assert.Equal(t, 20, tok.doesntExists)
+}
+
+func TestTypeInt8(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        int8 `env:"ENV_INT"`
+		filled       int8 `env:"ENV_INT2, require=true"`
+		protected    int8 `env:"ENV_INT, protected=true"`
+		doesntExists int8 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, int8(1), tok.empty)
+	assert.Equal(t, int8(1), tok.filled)
+	assert.Equal(t, int8(80), tok.protected)
+	assert.Equal(t, int8(20), tok.doesntExists)
+}
+
+func TestTypeInt16(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        int16 `env:"ENV_INT"`
+		filled       int16 `env:"ENV_INT2, require=true"`
+		protected    int16 `env:"ENV_INT, protected=true"`
+		doesntExists int16 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, int16(1), tok.empty)
+	assert.Equal(t, int16(1), tok.filled)
+	assert.Equal(t, int16(80), tok.protected)
+	assert.Equal(t, int16(20), tok.doesntExists)
+}
+
+func TestTypeInt32(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        int32 `env:"ENV_INT"`
+		filled       int32 `env:"ENV_INT2, require=true"`
+		protected    int32 `env:"ENV_INT, protected=true"`
+		doesntExists int32 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, int32(1), tok.empty)
+	assert.Equal(t, int32(1), tok.filled)
+	assert.Equal(t, int32(80), tok.protected)
+	assert.Equal(t, int32(20), tok.doesntExists)
+}
+
+func TestTypeInt64(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        int64 `env:"ENV_INT"`
+		filled       int64 `env:"ENV_INT2, require=true"`
+		protected    int64 `env:"ENV_INT, protected=true"`
+		doesntExists int64 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), tok.empty)
+	assert.Equal(t, int64(1), tok.filled)
+	assert.Equal(t, int64(80), tok.protected)
+	assert.Equal(t, int64(20), tok.doesntExists)
+}
+
+func TestTypeFloat32(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        float32 `env:"ENV_INT"`
+		filled       float32 `env:"ENV_INT2, require=true"`
+		protected    float32 `env:"ENV_INT, protected=true"`
+		doesntExists float32 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, float32(1), tok.empty)
+	assert.Equal(t, float32(1), tok.filled)
+	assert.Equal(t, float32(80), tok.protected)
+	assert.Equal(t, float32(20), tok.doesntExists)
+}
+
+func TestTypeFloat64(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        float64 `env:"ENV_INT"`
+		filled       float64 `env:"ENV_INT2, require=true"`
+		protected    float64 `env:"ENV_INT, protected=true"`
+		doesntExists float64 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, float64(1), tok.empty)
+	assert.Equal(t, float64(1), tok.filled)
+	assert.Equal(t, float64(80), tok.protected)
+	assert.Equal(t, float64(20), tok.doesntExists)
+}
+
+func TestTypeUint(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        uint `env:"ENV_INT"`
+		filled       uint `env:"ENV_INT2, require=true"`
+		protected    uint `env:"ENV_INT, protected=true"`
+		doesntExists uint `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, uint(1), tok.empty)
+	assert.Equal(t, uint(1), tok.filled)
+	assert.Equal(t, uint(80), tok.protected)
+	assert.Equal(t, uint(20), tok.doesntExists)
+}
+
+func TestTypeUint8(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        uint8 `env:"ENV_INT"`
+		filled       uint8 `env:"ENV_INT2, require=true"`
+		protected    uint8 `env:"ENV_INT, protected=true"`
+		doesntExists uint8 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, uint8(1), tok.empty)
+	assert.Equal(t, uint8(1), tok.filled)
+	assert.Equal(t, uint8(80), tok.protected)
+	assert.Equal(t, uint8(20), tok.doesntExists)
+}
+
+func TestTypeUint16(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        uint16 `env:"ENV_INT"`
+		filled       uint16 `env:"ENV_INT2, require=true"`
+		protected    uint16 `env:"ENV_INT, protected=true"`
+		doesntExists uint16 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, uint16(1), tok.empty)
+	assert.Equal(t, uint16(1), tok.filled)
+	assert.Equal(t, uint16(80), tok.protected)
+	assert.Equal(t, uint16(20), tok.doesntExists)
+}
+
+func TestTypeUint32(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        uint32 `env:"ENV_INT"`
+		filled       uint32 `env:"ENV_INT2, require=true"`
+		protected    uint32 `env:"ENV_INT, protected=true"`
+		doesntExists uint32 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, uint32(1), tok.empty)
+	assert.Equal(t, uint32(1), tok.filled)
+	assert.Equal(t, uint32(80), tok.protected)
+	assert.Equal(t, uint32(20), tok.doesntExists)
+}
+
+func TestTypeUint64(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        uint64 `env:"ENV_INT"`
+		filled       uint64 `env:"ENV_INT2, require=true"`
+		protected    uint64 `env:"ENV_INT, protected=true"`
+		doesntExists uint64 `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: 80}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(1), tok.empty)
+	assert.Equal(t, uint64(1), tok.filled)
+	assert.Equal(t, uint64(80), tok.protected)
+	assert.Equal(t, uint64(20), tok.doesntExists)
+}
+
+func TestTypeString(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        string `env:"ENV_INT"`
+		filled       string `env:"ENV_INT2, require=true"`
+		protected    string `env:"ENV_INT, protected=true"`
+		doesntExists string `env:"ENV_INT3, default=20"`
+	}
+
+	tok := &token{protected: "80"}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	_ = os.Setenv(envInt, "1")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, "1", tok.empty)
+	assert.Equal(t, "1", tok.filled)
+	assert.Equal(t, "80", tok.protected)
+	assert.Equal(t, "20", tok.doesntExists)
+}
+
+func TestTypeBool(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1")
+	type token struct {
+		empty        bool `env:"ENV_INT"`
+		filled       bool `env:"ENV_INT2, require=true"`
+		protected    bool `env:"ENV_INT, protected=true"`
+		doesntExists bool `env:"ENV_INT3, default=1"`
+	}
+
+	tok := &token{protected: true}
+	err := Bind(tok)
+	assert.Error(t, err)
+	_ = os.Setenv(envInt, "true")
+	err = Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, true, tok.empty)
+	assert.Equal(t, true, tok.filled)
+	assert.Equal(t, true, tok.protected)
+	assert.Equal(t, true, tok.doesntExists)
+}
+
+func TestTypeIntSlice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []int `env:"ENV_INT"`
+		filled       []int `env:"ENV_INT2, require=true"`
+		protected    []int `env:"ENV_INT, protected=true"`
+		doesntExists []int `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []int{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []int{}, tok.empty)
+	assert.Equal(t, []int{1, 1}, tok.filled)
+	assert.Equal(t, []int{80, 80}, tok.protected)
+	assert.Equal(t, []int{20, 20}, tok.doesntExists)
+}
+
+func TestTypeInt8Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []int8 `env:"ENV_INT"`
+		filled       []int8 `env:"ENV_INT2, require=true"`
+		protected    []int8 `env:"ENV_INT, protected=true"`
+		doesntExists []int8 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []int8{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []int8{}, tok.empty)
+	assert.Equal(t, []int8{1, 1}, tok.filled)
+	assert.Equal(t, []int8{80, 80}, tok.protected)
+	assert.Equal(t, []int8{20, 20}, tok.doesntExists)
+}
+
+func TestTypeInt16Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []int16 `env:"ENV_INT"`
+		filled       []int16 `env:"ENV_INT2, require=true"`
+		protected    []int16 `env:"ENV_INT, protected=true"`
+		doesntExists []int16 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []int16{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []int16{}, tok.empty)
+	assert.Equal(t, []int16{1, 1}, tok.filled)
+	assert.Equal(t, []int16{80, 80}, tok.protected)
+	assert.Equal(t, []int16{20, 20}, tok.doesntExists)
+}
+
+func TestTypeInt32Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []int32 `env:"ENV_INT"`
+		filled       []int32 `env:"ENV_INT2, require=true"`
+		protected    []int32 `env:"ENV_INT, protected=true"`
+		doesntExists []int32 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []int32{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []int32{}, tok.empty)
+	assert.Equal(t, []int32{1, 1}, tok.filled)
+	assert.Equal(t, []int32{80, 80}, tok.protected)
+	assert.Equal(t, []int32{20, 20}, tok.doesntExists)
+}
+
+func TestTypeInt64Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []int64 `env:"ENV_INT"`
+		filled       []int64 `env:"ENV_INT2, require=true"`
+		protected    []int64 `env:"ENV_INT, protected=true"`
+		doesntExists []int64 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []int64{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []int64{}, tok.empty)
+	assert.Equal(t, []int64{1, 1}, tok.filled)
+	assert.Equal(t, []int64{80, 80}, tok.protected)
+	assert.Equal(t, []int64{20, 20}, tok.doesntExists)
+}
+
+func TestTypeFloat32Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []float32 `env:"ENV_INT"`
+		filled       []float32 `env:"ENV_INT2, require=true"`
+		protected    []float32 `env:"ENV_INT, protected=true"`
+		doesntExists []float32 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []float32{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []float32{}, tok.empty)
+	assert.Equal(t, []float32{1, 1}, tok.filled)
+	assert.Equal(t, []float32{80, 80}, tok.protected)
+	assert.Equal(t, []float32{20, 20}, tok.doesntExists)
+}
+
+func TestTypeFloat64Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []float64 `env:"ENV_INT"`
+		filled       []float64 `env:"ENV_INT2, require=true"`
+		protected    []float64 `env:"ENV_INT, protected=true"`
+		doesntExists []float64 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []float64{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []float64{}, tok.empty)
+	assert.Equal(t, []float64{1, 1}, tok.filled)
+	assert.Equal(t, []float64{80, 80}, tok.protected)
+	assert.Equal(t, []float64{20, 20}, tok.doesntExists)
+}
+
+func TestTypeUIntSlice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []uint `env:"ENV_INT"`
+		filled       []uint `env:"ENV_INT2, require=true"`
+		protected    []uint `env:"ENV_INT, protected=true"`
+		doesntExists []uint `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []uint{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []uint{}, tok.empty)
+	assert.Equal(t, []uint{1, 1}, tok.filled)
+	assert.Equal(t, []uint{80, 80}, tok.protected)
+	assert.Equal(t, []uint{20, 20}, tok.doesntExists)
+}
+
+func TestTypeUInt16Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []uint16 `env:"ENV_INT"`
+		filled       []uint16 `env:"ENV_INT2, require=true"`
+		protected    []uint16 `env:"ENV_INT, protected=true"`
+		doesntExists []uint16 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []uint16{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []uint16{}, tok.empty)
+	assert.Equal(t, []uint16{1, 1}, tok.filled)
+	assert.Equal(t, []uint16{80, 80}, tok.protected)
+	assert.Equal(t, []uint16{20, 20}, tok.doesntExists)
+}
+
+func TestTypeUInt32Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []uint32 `env:"ENV_INT"`
+		filled       []uint32 `env:"ENV_INT2, require=true"`
+		protected    []uint32 `env:"ENV_INT, protected=true"`
+		doesntExists []uint32 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []uint32{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []uint32{}, tok.empty)
+	assert.Equal(t, []uint32{1, 1}, tok.filled)
+	assert.Equal(t, []uint32{80, 80}, tok.protected)
+	assert.Equal(t, []uint32{20, 20}, tok.doesntExists)
+}
+
+func TestTypeUInt64Slice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []uint64 `env:"ENV_INT"`
+		filled       []uint64 `env:"ENV_INT2, require=true"`
+		protected    []uint64 `env:"ENV_INT, protected=true"`
+		doesntExists []uint64 `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []uint64{80, 80}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []uint64{}, tok.empty)
+	assert.Equal(t, []uint64{1, 1}, tok.filled)
+	assert.Equal(t, []uint64{80, 80}, tok.protected)
+	assert.Equal(t, []uint64{20, 20}, tok.doesntExists)
+}
+
+func TestTypeStringSlice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []string `env:"ENV_INT"`
+		filled       []string `env:"ENV_INT2, require=true"`
+		protected    []string `env:"ENV_INT, protected=true"`
+		doesntExists []string `env:"ENV_INT3, default=[20,20]"`
+	}
+
+	tok := &token{protected: []string{"80", "80"}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{}, tok.empty)
+	assert.Equal(t, []string{"1", "1"}, tok.filled)
+	assert.Equal(t, []string{"80", "80"}, tok.protected)
+	assert.Equal(t, []string{"20", "20"}, tok.doesntExists)
+}
+
+func TestTypeBoolSlice(t *testing.T) {
+	cleanup()
+	_ = os.Setenv(envInt, "")
+	_ = os.Setenv(envInt2, "1,1")
+	type token struct {
+		empty        []bool `env:"ENV_INT"`
+		filled       []bool `env:"ENV_INT2, require=true"`
+		protected    []bool `env:"ENV_INT, protected=true"`
+		doesntExists []bool `env:"ENV_INT3, default=[true,true]"`
+	}
+
+	tok := &token{protected: []bool{true, true}}
+	err := Bind(tok)
+	assert.NoError(t, err)
+	assert.Equal(t, []bool{}, tok.empty)
+	assert.Equal(t, []bool{true, true}, tok.filled)
+	assert.Equal(t, []bool{true, true}, tok.protected)
+	assert.Equal(t, []bool{true, true}, tok.doesntExists)
+}
+
+func TestPublicAPI(t *testing.T) {
+	defer cleanup()
+	_ = os.Setenv(envInt, "1")
+	_ = os.Setenv(envString, "1")
+	_ = os.Setenv(envBool, "1")
+	_ = os.Setenv(envFloat64, "1")
+	_ = os.Setenv(envIntSlice, "1")
+	_ = os.Setenv(envStringSlice, "1")
+	_ = os.Setenv(envBoolSlice, "1")
+	_ = os.Setenv(envFloat64Slice, "1")
+	const none = "none"
+	var err error
+	var fs []float64
+	var bs []bool
+	var ss []string
+	var is []int
+
+	var f float64
+	var b bool
+	var i int
+	var s string
+
+	fs, err = GetEnvAsArrayOfFloat64OrFallback(envFloat64Slice, []float64{20, 20})
+	assert.NoError(t, err)
+	assert.Equal(t, []float64{1}, fs)
+	fs, err = GetEnvAsArrayOfFloat64OrFallback(none, []float64{20, 20})
+	assert.NoError(t, err)
+	assert.Equal(t, []float64{20, 20}, fs)
+
+	ss = GetEnvAsArrayOfStringsOrFallback(envStringSlice, []string{"20", "20"})
+	assert.Equal(t, []string{"1"}, ss)
+	ss = GetEnvAsArrayOfStringsOrFallback(none, []string{"20", "20"})
+	assert.Equal(t, []string{"20", "20"}, ss)
+
+	bs, err = GetEnvAsArrayOfBoolOrFallback(envStringSlice, []bool{true, true})
+	assert.NoError(t, err)
+	assert.Equal(t, []bool{true}, bs)
+	bs, err = GetEnvAsArrayOfBoolOrFallback(none, []bool{true, true})
+	assert.NoError(t, err)
+	assert.Equal(t, []bool{true, true}, bs)
+
+	is, err = GetEnvAsArrayOfIntsOrFallback(envIntSlice, []int{1, 1})
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1}, is)
+	is, err = GetEnvAsArrayOfIntsOrFallback(none, []int{1, 1})
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 1}, is)
+
+	i, err = GetEnvAsIntOrFallback(envInt, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, i)
+	i, err = GetEnvAsIntOrFallback(none, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, i)
+
+	b, err = GetEnvAsBoolOrFallback(envBool, true)
+	assert.NoError(t, err)
+	assert.Equal(t, true, b)
+	b, err = GetEnvAsBoolOrFallback(none, true)
+	assert.NoError(t, err)
+	assert.Equal(t, true, b)
+
+	f, err = GetEnvAsFloat64OrFallback(envFloat64, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, 1., f)
+	f, err = GetEnvAsFloat64OrFallback(none, 1)
+	assert.NoError(t, err)
+	assert.Equal(t, 1., f)
+
+	s = GetEnvAsStringOrFallback(envString, "1")
+	assert.Equal(t, "1", s)
+	s = GetEnvAsStringOrFallback(none, "1")
+	assert.Equal(t, "1", s)
+}
+
 func setEnv(m map[string]string) {
 	for k, v := range m {
 		_ = os.Setenv(k, v)
@@ -820,6 +1477,7 @@ const (
 	secretAccessKey     = "SECRET_ACCESS_KEY"
 
 	envInt            = "ENV_INT"
+	envInt2           = "ENV_INT2"
 	envString         = "ENV_STRING"
 	envStringSlice    = "ENV_STRING_SLICE"
 	envBool           = "ENV_BOOL"

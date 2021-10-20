@@ -94,7 +94,7 @@ func bind(m meta) (err error) {
 
 		case int, int8, int16, int32, int64:
 			if v.env.protected.isTrue() && v.fieldValue.Int() != 0 {
-				return
+				continue
 			}
 			err = setNumeric(f, v)
 			if err != nil {
@@ -104,7 +104,7 @@ func bind(m meta) (err error) {
 
 		case float32, float64:
 			if v.env.protected.isTrue() && v.fieldValue.Float() != 0 {
-				return
+				continue
 			}
 			err = setNumeric(f, v)
 			if err != nil {
@@ -114,7 +114,7 @@ func bind(m meta) (err error) {
 
 		case uint, uint8, uint16, uint32, uint64:
 			if v.env.protected.isTrue() && v.fieldValue.Uint() != 0 {
-				return
+				continue
 			}
 			err = setNumeric(f, v)
 			if err != nil {
