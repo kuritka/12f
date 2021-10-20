@@ -79,24 +79,10 @@ func Bind(s interface{}) (err error) {
 func bind(m meta) (err error) {
 	for k, v := range m {
 		f := reflect.NewAt(v.fieldValue.Type(), unsafe.Pointer(v.fieldValue.UnsafeAddr())).Elem()
-		switch v.fieldValue.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			var i int
-			if v.env.protected.isTrue() && v.fieldValue.Int() != 0 {
-				// field is protected and value is already set. Binding is skipped
-				continue
-			}
-			i, err = integer(v.env)
-			if err != nil {
-				return
-			}
-			f.SetInt(int64(i))
-			continue
-
-		case reflect.Bool:
+		switch f.Interface().(type) {
+		case bool:
 			var b bool
 			if v.env.protected.isTrue() {
-				// field is protected and value is already set. Binding is skipped
 				continue
 			}
 			b, err = boolean(v.env)
@@ -106,111 +92,144 @@ func bind(m meta) (err error) {
 			f.SetBool(b)
 			continue
 
-		case reflect.Float32, reflect.Float64:
-			var fl float64
-			if v.env.protected.isTrue() && v.fieldValue.Float() != 0. {
-				// field is protected and value is already set. Binding is skipped
-				continue
+		case int, int8, int16, int32, int64:
+			if v.env.protected.isTrue() && v.fieldValue.Int() != 0 {
+				return
 			}
-			fl, err = float(v.env)
+			err = setNumeric(f, v)
 			if err != nil {
 				return
 			}
-			f.SetFloat(fl)
 			continue
 
-		case reflect.String:
+		case float32, float64:
+			if v.env.protected.isTrue() && v.fieldValue.Float() != 0 {
+				return
+			}
+			err = setNumeric(f, v)
+			if err != nil {
+				return
+			}
+			continue
+
+		case uint, uint8, uint16, uint32, uint64:
+			if v.env.protected.isTrue() && v.fieldValue.Uint() != 0 {
+				return
+			}
+			err = setNumeric(f, v)
+			if err != nil {
+				return
+			}
+			continue
+
+		case string:
 			var s string
 			if v.env.protected.isTrue() && v.fieldValue.String() != "" {
-				// field is protected and value is already set. Binding is skipped
 				continue
 			}
 			s = GetEnvAsStringOrFallback(v.env.name, v.env.def.value)
 			f.SetString(s)
 			continue
 
-		case reflect.Slice:
-
-			switch f.Interface().(type) {
-			case []string:
-				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
-					continue
-				}
-				var ss []string
-				ss = GetEnvAsArrayOfStringsOrFallback(v.env.name, v.env.def.asStringSlice())
-				f.Set(reflect.ValueOf(ss))
+		case []string:
+			if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
 				continue
-
-			case []int, []int8, []int16, []int32, []int64, []float32, []float64, []uint, []uint8, []uint16, []uint32, []uint64:
-				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
-					continue
-				}
-				var floats []float64
-				floats, err = floatSlice(v.env)
-				if err != nil {
-					return
-				}
-				switch f.Interface().(type) {
-				case []uint:
-					f.Set(reflect.ValueOf(convertToUInt(floats)))
-					continue
-				case []uint8:
-					f.Set(reflect.ValueOf(convertToUInt8(floats)))
-					continue
-				case []uint16:
-					f.Set(reflect.ValueOf(convertToUInt16(floats)))
-					continue
-				case []uint32:
-					f.Set(reflect.ValueOf(convertToUInt32(floats)))
-					continue
-				case []uint64:
-					f.Set(reflect.ValueOf(convertToUInt64(floats)))
-					continue
-				case []int:
-					f.Set(reflect.ValueOf(convertToInt(floats)))
-					continue
-				case []int8:
-					f.Set(reflect.ValueOf(convertToInt8(floats)))
-					continue
-				case []int16:
-					f.Set(reflect.ValueOf(convertToInt16(floats)))
-					continue
-				case []int32:
-					f.Set(reflect.ValueOf(convertToInt32(floats)))
-					continue
-				case []int64:
-					f.Set(reflect.ValueOf(convertToInt64(floats)))
-					continue
-				case []float32:
-					f.Set(reflect.ValueOf(convertToFloat32(floats)))
-					continue
-				case []float64:
-					f.Set(reflect.ValueOf(floats))
-					continue
-				}
-				continue
-
-			case []bool:
-				if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
-					continue
-				}
-				var bs []bool
-				bs, err = boolSlice(v.env)
-				if err != nil {
-					return
-				}
-				f.Set(reflect.ValueOf(bs))
-				continue
-
-			default:
-				err = fmt.Errorf("unsupported type %s: %s", k, v.fieldValue.Type().Name())
 			}
+			var ss []string
+			ss = GetEnvAsArrayOfStringsOrFallback(v.env.name, v.env.def.asStringSlice())
+			f.Set(reflect.ValueOf(ss))
+			continue
+
+		case []int, []int8, []int16, []int32, []int64, []float32, []float64, []uint, []uint8, []uint16, []uint32, []uint64:
+			if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+				continue
+			}
+			var floats []float64
+			floats, err = floatSlice(v.env)
+			if err != nil {
+				return
+			}
+			setNumericSlice(f, floats)
+			continue
+
+		case []bool:
+			if v.env.protected.isTrue() && !v.fieldValue.IsNil() {
+				continue
+			}
+			var bs []bool
+			bs, err = boolSlice(v.env)
+			if err != nil {
+				return
+			}
+			f.Set(reflect.ValueOf(bs))
+			continue
+
 		default:
 			err = fmt.Errorf("unsupported type %s: %s", k, v.fieldValue.Type().Name())
-			return
 		}
 	}
 	return err
+}
+
+func setNumericSlice(f reflect.Value, floats []float64) {
+	switch f.Interface().(type) {
+	case []uint:
+		f.Set(reflect.ValueOf(convertToUInt(floats)))
+		return
+	case []uint8:
+		f.Set(reflect.ValueOf(convertToUInt8(floats)))
+		return
+	case []uint16:
+		f.Set(reflect.ValueOf(convertToUInt16(floats)))
+		return
+	case []uint32:
+		f.Set(reflect.ValueOf(convertToUInt32(floats)))
+		return
+	case []uint64:
+		f.Set(reflect.ValueOf(convertToUInt64(floats)))
+		return
+	case []int:
+		f.Set(reflect.ValueOf(convertToInt(floats)))
+		return
+	case []int8:
+		f.Set(reflect.ValueOf(convertToInt8(floats)))
+		return
+	case []int16:
+		f.Set(reflect.ValueOf(convertToInt16(floats)))
+		return
+	case []int32:
+		f.Set(reflect.ValueOf(convertToInt32(floats)))
+		return
+	case []int64:
+		f.Set(reflect.ValueOf(convertToInt64(floats)))
+		return
+	case []float32:
+		f.Set(reflect.ValueOf(convertToFloat32(floats)))
+		return
+	case []float64:
+		f.Set(reflect.ValueOf(floats))
+		return
+	}
+}
+
+func setNumeric(f reflect.Value, v field) (err error) {
+	var fl float64
+	fl, err = float(v.env)
+	if err != nil {
+		return
+	}
+	switch f.Interface().(type) {
+	case int, int8, int16, int32, int64:
+		f.SetInt(int64(fl))
+		return
+	case float32, float64:
+		f.SetFloat(fl)
+		return
+	case uint, uint8, uint16, uint32, uint64:
+		f.SetUint(uint64(fl))
+		return
+	}
+	return
 }
 
 // recoursive function builds meta structure

@@ -36,22 +36,6 @@ func boolean(env env) (b bool, err error) {
 	return
 }
 
-func integer(env env) (i int, err error) {
-	var d int
-	if env.def.exists {
-		d, err = strconv.Atoi(env.def.value)
-		if err != nil {
-			err = fmt.Errorf("can't convert default value %s of '%s' to int", env.name, env.def.value)
-			return
-		}
-	}
-	i, err = GetEnvAsIntOrFallback(env.name, d)
-	if err != nil {
-		err = fmt.Errorf("can't read %s and parse value '%s' to int", env.name, env.value)
-	}
-	return
-}
-
 func float(env env) (f float64, err error) {
 	var d float64
 	if env.def.exists {
