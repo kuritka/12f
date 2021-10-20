@@ -1,5 +1,5 @@
 # ENV binder
-The env-binder package is used to easily bind values to GO structures. Env-binder is designed to 
+The ENV-BINDER package is used to easily bind environment variables to GO structures. ENV-BINDER is designed to 
 be usable in the widest possible range of scenarios.Among other things, it supports variable 
 prefixes and bindings to unexported arrays. Take a look at the following usage example:
 ```golang
@@ -28,6 +28,9 @@ type Config struct {
 
 	// reading slice of strings from env var
 	Subnets []string `env:"SUBNETS, default=[10.0.0.0/24,192.168.1.0/24]"`
+	
+	// default=[] ensures that if INTERVALS does not exist, []int8{} is set instead of []int8{nil}
+	Interval []uint8 `env:"INTERVALS, default=[]"`
 
 	// nested structure
 	Credentials struct {
@@ -62,7 +65,7 @@ func main() {
 
 	c := &Config{}
 	c.AlternativeName = "protected name"
-	c.Description = "hello from env-binder"
+	c.Description = "hello from ENV-BINDER"
 	if err := env.Bind(c); err != nil {
 		fmt.Println(err)
 		return
@@ -88,6 +91,7 @@ function main generates the following output:
     "10.1.0.0/24",
     "10.1.1.0/24"
   ],
+  "Interval": [],
   "Credentials": {
     "KeyID": "AKIAIOSFODNN7EXAMPLE"
   },
@@ -102,9 +106,9 @@ function main generates the following output:
 ```
 
 ## supported types
-Env-binder supports all types listed in the following table.  In addition, it should be noted that in the case 
-of slices, env-binder creates an instance of an empty slice if the value of the environment variable is 
-declared and its value is empty string. In this case env-binder returns an empty slice instead of the vulnerable nil. 
+ENV-BINDER supports all types listed in the following table.  In addition, it should be noted that in the case 
+of slices, ENV-BINDER creates an instance of an empty slice if the value of the environment variable is 
+declared and its value is empty string. In this case ENV-BINDER returns an empty slice instead of the vulnerable nil. 
 
 | primitive types | slices |
 |---|---|
@@ -115,7 +119,7 @@ declared and its value is empty string. In this case env-binder returns an empty
 | `string` | `[]string` |
 
 ## supported keywords
-Besides the fact that env-binder works with private fields and can add prefixes to variable names, it 
+Besides the fact that ENV-BINDER works with private fields and can add prefixes to variable names, it 
 operates with several keywords. The structure in the introductory section works with all types 
 of these keywords. 
 
