@@ -142,7 +142,7 @@ func TestSetDefaultEmpty(t *testing.T) {
 		Value       string    `env:"TOKEN_VALUE, default="`
 		Ratio       float64   `env:"TOKEN_RATIO, default=0"`
 		Readonly    bool      `env:"TOKEN_READONLY, default=false"`
-		Hours       []int     `env:"TOKEN_HOURS, default[]"`
+		Hours       []int     `env:"TOKEN_HOURS, default[]"` // can't be parsed!
 		URLs        []string  `env:"TOKEN_URLS, default=[]"`
 		Enabled     []bool    `env:"TOKEN_BOOLS, default=[]"`
 		Coordinates []float64 `env:"TOKEN_COORDINATES, default=[]"`
@@ -157,7 +157,7 @@ func TestSetDefaultEmpty(t *testing.T) {
 	assert.Equal(t, "", tok.Value)
 	assert.Equal(t, 0., tok.Ratio)
 	assert.Equal(t, false, tok.Readonly)
-	assert.Equal(t, []int{}, tok.Hours)
+	assert.Equal(t, []int(nil), tok.Hours)
 	assert.Equal(t, []string{}, tok.URLs)
 	assert.Equal(t, []bool{}, tok.Enabled)
 	assert.Equal(t, []float64{}, tok.Coordinates)
@@ -467,7 +467,6 @@ func TestReadingPrivateFields(t *testing.T) {
 }
 
 func TestReadingAnonymousFields(t *testing.T) {
-	defer cleanup()
 	defer cleanup()
 	// arrange
 	_ = os.Setenv(tokenReadOnly, "false, false")
@@ -1446,6 +1445,85 @@ func TestPublicAPI(t *testing.T) {
 	assert.Equal(t, "1", s)
 	s = GetEnvAsStringOrFallback(none, "1")
 	assert.Equal(t, "1", s)
+}
+
+func TestEmptySlice(t *testing.T) {
+	defer cleanup()
+	type token struct {
+		strSlice      []string  `env:"NONE"`
+		strSlice2     []string  `env:"NONE, default=[]"`
+		intSlice      []int     `env:"NONE"`
+		intSlice2     []int     `env:"NONE, default=[]"`
+		int8Slice     []int8    `env:"NONE"`
+		int8Slice2    []int8    `env:"NONE, default=[]"`
+		int16Slice    []int16   `env:"NONE"`
+		int16Slice2   []int16   `env:"NONE, default=[]"`
+		int32Slice    []int32   `env:"NONE"`
+		int32Slice2   []int32   `env:"NONE, default=[]"`
+		int64Slice    []int64   `env:"NONE"`
+		int64Slice2   []int64   `env:"NONE, default=[]"`
+		uintSlice     []uint    `env:"NONE"`
+		uintSlice2    []uint    `env:"NONE, default=[]"`
+		uint8Slice    []uint8   `env:"NONE"`
+		uint8Slice2   []uint8   `env:"NONE, default=[]"`
+		uint16Slice   []uint16  `env:"NONE"`
+		uint16Slice2  []uint16  `env:"NONE, default=[]"`
+		uint32Slice   []uint32  `env:"NONE"`
+		uint32Slice2  []uint32  `env:"NONE, default=[]"`
+		uint64Slice   []uint64  `env:"NONE"`
+		uint64Slice2  []uint64  `env:"NONE, default=[]"`
+		float32Slice  []float32 `env:"NONE"`
+		float32Slice2 []float32 `env:"NONE, default=[]"`
+		float64Slice  []float64 `env:"NONE"`
+		float64Slice2 []float64 `env:"NONE, default=[]"`
+		boolSlice     []bool    `env:"NONE"`
+		boolSlice2    []bool    `env:"NONE, default=[]"`
+	}
+	tok := &token{}
+	err := Bind(tok)
+	assert.NoError(t, err)
+
+	assert.Nil(t, tok.strSlice)
+	assert.Equal(t, []string{}, tok.strSlice2)
+
+	assert.Nil(t, tok.intSlice)
+	assert.Equal(t, []int{}, tok.intSlice2)
+
+	assert.Nil(t, tok.int8Slice)
+	assert.Equal(t, []int8{}, tok.int8Slice2)
+
+	assert.Nil(t, tok.int16Slice)
+	assert.Equal(t, []int16{}, tok.int16Slice2)
+
+	assert.Nil(t, tok.int32Slice)
+	assert.Equal(t, []int32{}, tok.int32Slice2)
+
+	assert.Nil(t, tok.int64Slice)
+	assert.Equal(t, []int64{}, tok.int64Slice2)
+
+	assert.Nil(t, tok.uintSlice)
+	assert.Equal(t, []uint{}, tok.uintSlice2)
+
+	assert.Nil(t, tok.uint8Slice)
+	assert.Equal(t, []uint8{}, tok.uint8Slice2)
+
+	assert.Nil(t, tok.uint16Slice)
+	assert.Equal(t, []uint16{}, tok.uint16Slice2)
+
+	assert.Nil(t, tok.uint32Slice)
+	assert.Equal(t, []uint32{}, tok.uint32Slice2)
+
+	assert.Nil(t, tok.uint64Slice)
+	assert.Equal(t, []uint64{}, tok.uint64Slice2)
+
+	assert.Nil(t, tok.float32Slice)
+	assert.Equal(t, []float32{}, tok.float32Slice2)
+
+	assert.Nil(t, tok.float64Slice)
+	assert.Equal(t, []float64{}, tok.float64Slice2)
+
+	assert.Nil(t, tok.boolSlice)
+	assert.Equal(t, []bool{}, tok.boolSlice2)
 }
 
 func setEnv(m map[string]string) {

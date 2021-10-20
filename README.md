@@ -28,6 +28,9 @@ type Config struct {
 
 	// reading slice of strings from env var
 	Subnets []string `env:"SUBNETS, default=[10.0.0.0/24,192.168.1.0/24]"`
+	
+	// default=[] ensures that if INTERVALS does not exist, []int8{} is set instead of []int8{nil}
+	Interval []uint8 `env:"INTERVALS, default=[]"`
 
 	// nested structure
 	Credentials struct {
@@ -88,6 +91,7 @@ function main generates the following output:
     "10.1.0.0/24",
     "10.1.1.0/24"
   ],
+  "Interval": [],
   "Credentials": {
     "KeyID": "AKIAIOSFODNN7EXAMPLE"
   },

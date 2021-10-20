@@ -53,15 +53,18 @@ func float(env env) (f float64, err error) {
 }
 
 func floatSlice(env env) (fs []float64, err error) {
-	var d = make([]float64, 0)
-	for _, s := range env.def.asStringSlice() {
-		var fl float64
-		fl, err = strconv.ParseFloat(strings.Trim(s, " "), 64)
-		if err != nil {
-			err = fmt.Errorf("can't convert default %s to slice of float64", env.def.asStringSlice())
-			return
+	var d []float64
+	if env.def.asStringSlice() != nil {
+		d = make([]float64, 0)
+		for _, s := range env.def.asStringSlice() {
+			var fl float64
+			fl, err = strconv.ParseFloat(strings.Trim(s, " "), 64)
+			if err != nil {
+				err = fmt.Errorf("can't convert default %s to slice of float64", env.def.asStringSlice())
+				return
+			}
+			d = append(d, fl)
 		}
-		d = append(d, fl)
 	}
 	fs, err = GetEnvAsArrayOfFloat64OrFallback(env.name, d)
 	if err != nil {
@@ -71,15 +74,18 @@ func floatSlice(env env) (fs []float64, err error) {
 }
 
 func boolSlice(env env) (bs []bool, err error) {
-	var d = make([]bool, 0)
-	for _, s := range env.def.asStringSlice() {
-		var b bool
-		b, err = strconv.ParseBool(strings.Trim(s, " "))
-		if err != nil {
-			err = fmt.Errorf("can't convert default %s to slice of bool", env.def.asStringSlice())
-			return
+	var d []bool
+	if env.def.asStringSlice() != nil {
+		d = make([]bool, 0)
+		for _, s := range env.def.asStringSlice() {
+			var b bool
+			b, err = strconv.ParseBool(strings.Trim(s, " "))
+			if err != nil {
+				err = fmt.Errorf("can't convert default %s to slice of bool", env.def.asStringSlice())
+				return
+			}
+			d = append(d, b)
 		}
-		d = append(d, b)
 	}
 	bs, err = GetEnvAsArrayOfBoolOrFallback(env.name, d)
 	if err != nil {
