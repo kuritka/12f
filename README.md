@@ -70,7 +70,7 @@ func main() {
 	fmt.Println(JSONize(c))
 }
 ```
-
+function main generates the following output:
 ```json
 {
   "Name": "Hello from 12-factor",
@@ -114,8 +114,24 @@ declared and its value is empty string. In this case env-binder returns an empty
 | `bool` | `[]bool` |
 | `string` | `[]string` |
 
+## supported keywords
+Besides the fact that env-binder works with private fields and can add prefixes to variable names, it 
+operates with several keywords. The structure in the introductory section works with all types 
+of these keywords. 
+
+- `default` - the value specified in the default tag is used in case env variable does not exist. e.g:
+  `env: "SUBNET", default=10.0.1.0/24` or `env: "HOURS", default=[10,11,12,23,24]`
+
+- `require` - if `require=true` then env variable must exist otherwise Bind function returns error
+
+- `protected` - if `protected=true` then, in case the field in the structure already has a set value , the 
+  Bind function will not set it. Otherwise, bind will be applied to it.
+
+You can combine individual tags freely: `env: "ENV_SWITCHER", default=[true, false, true], protected=true` 
+is a perfectly valid configuration
+
 ## API
-If the Bind function is not enough for you, you can use one of the static functions of our API:
+If the Bind function is not enough for you, you can use any of the static functions of our API:
 ```go
 // string
 GetEnvAsStringOrFallback(key, defaultValue string) string
