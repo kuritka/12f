@@ -21,7 +21,7 @@ type Config struct {
 	AlternativeName string `env:"NAME, protected=true"`
 
 	// reading int with 8080 as default value
-	DefaultPort int16 `env:"PORT, default=8080"`
+	DefaultPort uint16 `env:"PORT, default=8080"`
 
 	// reading slice of strings with default values
 	Regions []string `env:"REGIONS, default=[us-east-1,us-east-2,us-west-1]"`
@@ -104,7 +104,7 @@ func main() {
 ## supported types
 env-binder supports all types listed in the following table.  In addition, it should be noted that in the case 
 of slices, env-binder creates an instance of an empty slice if the value of the environment variable is 
-declared and its value is `"""`. In this case env-binder returns an empty slice instead of the vulnerable nil.  
+declared and its value is empty string. In this case env-binder returns an empty slice instead of the vulnerable nil.  
 | primitive types | slices |
 |---|---|
 | `int`,`int8`,`int16`,`int32`,`int64` | `[]int`,`[]int8`,`[]int16`,`[]int32`,`[]int64` |
@@ -112,3 +112,23 @@ declared and its value is `"""`. In this case env-binder returns an empty slice 
 | `uint`,`uint8`,`uint16`,`uint32`,`uint64` | `[]uint`,`[]uint8`,`[]uint16`,`[]uint32`,`[]uint64` |
 | `bool` | `[]bool` |
 | `string` | `[]string` |
+
+## API
+If the Bind function is not enough for you, you can use one of the static functions of our API:
+```go
+// string
+GetEnvAsStringOrFallback(key, defaultValue string) string
+GetEnvAsArrayOfStringsOrFallback(key string, defaultValue []string) []string
+
+// int
+GetEnvAsIntOrFallback(key string, defaultValue int) (int, error)
+GetEnvAsArrayOfIntsOrFallback(key string, defaultValue []int) ([]int, error) 
+
+// float64
+GetEnvAsFloat64OrFallback(key string, defaultValue float64) (float64, error)
+GetEnvAsArrayOfFloat64OrFallback(key string, defaultValue []float64) ([]float64, error)
+
+// bool
+GetEnvAsBoolOrFallback(key string, defaultValue bool) (bool, error)
+GetEnvAsArrayOfBoolOrFallback(key string, defaultValue []bool) ([]bool, error) 
+```
