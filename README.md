@@ -120,7 +120,8 @@ operates with several keywords. The structure in the introductory section works 
 of these keywords. 
 
 - `default` - the value specified in the default tag is used in case env variable does not exist. e.g:
-  `env: "SUBNET", default=10.0.1.0/24` or `env: "HOURS", default=[10,11,12,23,24]`
+  `env: "SUBNET", default=10.0.1.0/24` or `env: "ENV_SUBNETS", default=[]` which will set an empty slice instead 
+  of a vulnerable nil value in case `ENV_SUBNETS` does not exist. 
 
 - `require` - if `require=true` then env variable must exist otherwise Bind function returns error
 
