@@ -150,13 +150,22 @@ func bind(m meta) (err error) {
 				f.Set(reflect.ValueOf(is))
 				continue
 
-			case []float32, []float64:
+			case []float64:
 				var fs []float64
 				fs, err = floatSlice(v.env)
 				if err != nil {
 					return
 				}
 				f.Set(reflect.ValueOf(fs))
+				continue
+
+			case []float32:
+				var fs []float64
+				fs, err = floatSlice(v.env)
+				if err != nil {
+					return
+				}
+				f.Set(reflect.ValueOf(convertToFloat32(fs)))
 				continue
 
 			case []bool:

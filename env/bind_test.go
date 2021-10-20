@@ -231,53 +231,59 @@ func TestEmptyValue(t *testing.T) {
 	_ = os.Setenv(envFloat64Slice, "")
 	// arrange
 	// arrange
-	type token1 struct {
+	type tokenString struct {
 		envString string `env:"ENV_STRING, default=test"`
 	}
-	type token2 struct {
+	type tokenInt struct {
 		envInt int `env:"ENV_INT, default=22"`
 	}
-	type token3 struct {
+	type tokenBool struct {
 		envBool bool `env:"ENV_BOOL, default=true"`
 	}
-	type token4 struct {
+	type tokenFloat struct {
 		envFloat float32 `env:"ENV_FLOAT64, default=22.0"`
 	}
-	type token5 struct {
+	type tokenStringSlice struct {
 		envStringSlice []string `env:"ENV_STRING_SLICE, default=[test,test]"`
 	}
-	type token6 struct {
+	type tokenIntSlice struct {
 		envIntSlice []int `env:"ENV_INT_SLICE, default=[22]"`
 	}
-	type token7 struct {
+	type tokenBoolSlice struct {
 		envBoolSlice []bool `env:"ENV_BOOL_SLICE, default=[T]"`
 	}
-	type token8 struct {
+	type tokenFloatSlice struct {
 		envFloatSlice []float32 `env:"ENV_FLOAT64_SLICE, default=[22.0]"`
 	}
 
 	// act
 	// assert
-	t1 := &token1{}
+	t1 := &tokenString{}
 	err := Bind(t1)
 	assert.NoError(t, err)
 	assert.Equal(t, "", t1.envString)
-	err = Bind(&token2{})
+	err = Bind(&tokenInt{})
 	assert.Error(t, err)
-	err = Bind(&token3{})
+	err = Bind(&tokenBool{})
 	assert.Error(t, err)
-	err = Bind(&token4{})
+	err = Bind(&tokenFloat{})
 	assert.Error(t, err)
-	t5 := &token5{}
+	t5 := &tokenStringSlice{}
 	err = Bind(t5)
 	assert.NoError(t, err)
 	assert.Equal(t, []string{}, t5.envStringSlice)
-	err = Bind(&token6{})
-	assert.Error(t, err)
-	err = Bind(&token7{})
-	assert.Error(t, err)
-	err = Bind(&token8{})
-	assert.Error(t, err)
+	t6 := &tokenIntSlice{}
+	err = Bind(t6)
+	assert.NoError(t, err)
+	assert.Equal(t, []int{}, t6.envIntSlice)
+	t7 := &tokenBoolSlice{}
+	err = Bind(t7)
+	assert.NoError(t, err)
+	assert.Equal(t, []bool{}, t7.envBoolSlice)
+	t8 := &tokenFloatSlice{}
+	err = Bind(t8)
+	assert.NoError(t, err)
+	assert.Equal(t, []float32{}, t8.envFloatSlice)
 }
 
 func TestProtected(t *testing.T) {

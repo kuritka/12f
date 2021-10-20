@@ -10,6 +10,12 @@ type Config struct {
 
         // reading string value from NAME
         Name string `env:"NAME"`
+
+		// reuse an already bound env variable NAME
+		Description string `env:"NAME"`
+
+		// reuse an already bound env variable NAME
+		SubName `env:NAME, protected=true`
         
         // reading int with 8080 as default value
         DefaultPot int `env:"PORT, default=8080"`
@@ -35,9 +41,6 @@ type Config struct {
         
         // expected FAILOVER_ prefix in nested environment variables
         Endpoint2 Endpoint `env:"FAILOVER"`
-        
-        // reuse an already bound env variable NAME
-        Description string `env:"NAME"`
         
         // the field does not have a bind tag set, so it will be ignored during bind
         Args []string

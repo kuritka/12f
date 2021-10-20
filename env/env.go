@@ -65,6 +65,9 @@ func GetEnvAsArrayOfStringsOrFallback(key string, defaultValue []string) []strin
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfIntsOrFallback(key string, defaultValue []int) (ints []int, err error) {
 	if v, ex := os.LookupEnv(key); ex {
+		if v == "" {
+			return []int{}, nil
+		}
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var i int
@@ -83,6 +86,9 @@ func GetEnvAsArrayOfIntsOrFallback(key string, defaultValue []int) (ints []int, 
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfFloat64OrFallback(key string, defaultValue []float64) (floats []float64, err error) {
 	if v, ex := os.LookupEnv(key); ex {
+		if v == "" {
+			return []float64{}, nil
+		}
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var f float64
@@ -101,6 +107,9 @@ func GetEnvAsArrayOfFloat64OrFallback(key string, defaultValue []float64) (float
 // and falls back to the given defaultValue if not set
 func GetEnvAsArrayOfBoolOrFallback(key string, defaultValue []bool) (bools []bool, err error) {
 	if v, ex := os.LookupEnv(key); ex {
+		if v == "" {
+			return []bool{}, nil
+		}
 		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
 		for _, s := range slice {
 			var b bool
